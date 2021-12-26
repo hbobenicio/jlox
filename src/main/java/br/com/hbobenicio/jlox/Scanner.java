@@ -30,6 +30,28 @@ class Scanner {
 
     private int line = 1;
 
+    private static final Map<String, TokenType> keywords;
+
+    static {
+        keywords = new HashMap<>();
+        keywords.put("and", AND);
+        keywords.put("class", CLASS);
+        keywords.put("else", ELSE);
+        keywords.put("false", FALSE);
+        keywords.put("for", FOR);
+        keywords.put("fun", FUN);
+        keywords.put("if", IF);
+        keywords.put("nil", NIL);
+        keywords.put("or", OR);
+        keywords.put("print", PRINT);
+        keywords.put("return", RETURN);
+        keywords.put("super", SUPER);
+        keywords.put("this", THIS);
+        keywords.put("true", TRUE);
+        keywords.put("var", VAR);
+        keywords.put("while", WHILE);
+    }
+
     Scanner(String source) {
         this.source = source;
     }
@@ -80,15 +102,32 @@ class Scanner {
             case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> number();
             // the erroneous character is still consumed by the earlier call to advance().
             // That’s important so that we don’t get stuck in an infinite loop.
-            default  -> Lox.error(line, "Unexpected character");
+            default -> {
+                if (isAlpha(c)) {
+                    identifier();
+                } else {
+                    Lox.error(line, "Unexpected character");
+                }
+            }
         }
+    }
+
+    private void identifier() {
+        while (isAlphaNumeric(peek())) {
+            advance();
+        }
+        var lexeme = source.substring(start, current);
+        TokenType type = keywords.get(lexeme);
+        if (type == null) {
+            type = IDENTIFIER;
+        }
+        addToken(type);
     }
 
     private void number() {
         while (isDigit(peek())) {
             advance();
         }
-
         // Look for a fractional part.
         // Looking past the decimal point requires a second character of lookahead since
         // we don’t want to consume the `.` until we’re sure there is a digit after it
@@ -100,7 +139,6 @@ class Scanner {
                 advance();
             }
         }
-
         Double literalValue = Double.parseDouble(source.substring(start, current));
         addToken(NUMBER, literalValue);
     }
@@ -153,6 +191,16 @@ class Scanner {
             return '\0';
         }
         return source.charAt(current + 1);
+    }
+
+    private boolean isAlpha(char c) {
+        return (c >= 'a' && c <= 'z')
+                || (c >= 'A' && c <= 'Z')
+                || c == '_';
+    }
+
+    private boolean isAlphaNumeric(char c) {
+        return isAlpha(c) || isDigit(c);
     }
 
     private boolean isAtEnd() {
