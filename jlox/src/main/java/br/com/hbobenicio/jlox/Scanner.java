@@ -87,9 +87,10 @@ class Scanner {
             case '/' -> {
                 // double slashes `//` starts a line comment.
                 if (match('/')) {
-                    while (peek() != '\n' && !isAtEnd()) {
-                        advance();
-                    }
+                    lineComment();
+                // '/*' starts a block comment which ends with '*/'
+                } else if (match('*')) {
+                    blockComment();
                 } else {
                     addToken(SLASH);
                 }
@@ -106,9 +107,33 @@ class Scanner {
                 if (isAlpha(c)) {
                     identifier();
                 } else {
-                    Lox.error(line, "Unexpected character");
+                    Lox.error(line, String.format("unexpected character '%c'", c));
                 }
             }
+        }
+    }
+
+    private void blockComment() {
+        for (int depth = 1; depth > 0 && !isAtEnd(); advance()) {
+            if (peek() == '*' && peekNext() == '/') {
+                depth--;
+            } else if (peek() == '/' && peekNext() == '*') {
+                depth++;
+            } else if (peek() == '\n') {
+                line++;
+            }
+        }
+        if (isAtEnd()) {
+            Lox.error(line, "unterminated block comment. expecting token '*/'");
+            return;
+        }
+        advance();
+        advance();
+    }
+
+    private void lineComment() {
+        while (peek() != '\n' && !isAtEnd()) {
+            advance();
         }
     }
 
@@ -117,10 +142,9 @@ class Scanner {
             advance();
         }
         var lexeme = source.substring(start, current);
-        TokenType type = keywords.get(lexeme);
-        if (type == null) {
-            type = IDENTIFIER;
-        }
+
+        // If the identifier's lexeme happens to be a reserved keyword, p
+        TokenType type = keywords.getOrDefault(lexeme, IDENTIFIER);
         addToken(type);
     }
 
@@ -152,7 +176,7 @@ class Scanner {
         }
 
         if (isAtEnd()) {
-            Lox.error(line, "Unterminated string.");
+            Lox.error(line, "unterminated string. expecting token '\"'");
             return;
         }
 
@@ -194,9 +218,7 @@ class Scanner {
     }
 
     private boolean isAlpha(char c) {
-        return (c >= 'a' && c <= 'z')
-                || (c >= 'A' && c <= 'Z')
-                || c == '_';
+        return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || c == '_';
     }
 
     private boolean isAlphaNumeric(char c) {

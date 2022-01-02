@@ -53,6 +53,7 @@ public class Lox {
         List<Token> tokens = scanner.scanTokens();
 
         // For now, just print the tokens.
+        System.err.flush();
         for (Token token : tokens) {
             System.out.println(token);
         }
@@ -63,7 +64,7 @@ public class Lox {
     }
 
     private static void report(int line, String where, String message) {
-        var s = String.format("[line %d] Error %s: %s", line, where, message);
+        var s = String.format("error at (%d) %s: %s", line, where, message);
         System.err.println(s);
         hadError = true;
     }
