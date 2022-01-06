@@ -143,7 +143,7 @@ class Scanner {
         }
         var lexeme = source.substring(start, current);
 
-        // If the identifier's lexeme happens to be a reserved keyword, p
+        // If the identifier's lexeme happens to be a reserved keyword, prioritize it
         TokenType type = keywords.getOrDefault(lexeme, IDENTIFIER);
         addToken(type);
     }

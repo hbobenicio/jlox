@@ -71,8 +71,11 @@ struct token {
     union token_value value;
 };
 
+struct token token_new_eof(size_t line);
+struct token token_new_number(size_t line, struct strview lexeme, union token_value value);
+
 size_t token_len(const struct token* t);
-const char* token_kind_to_cstr(struct token* token);
-void token_fprint(FILE* file, struct token* token);
+const char* token_kind_to_cstr(const struct token* token);
+void token_fprint(FILE* file, const struct token* token);
 
 #endif

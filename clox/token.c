@@ -4,11 +4,29 @@
 #include <string.h>
 #include <assert.h>
 
+struct token token_new_eof(size_t line) {
+    return (struct token) {
+        .kind = TOKEN_KIND_EOF,
+        .lexeme = strview_empty(),
+        .line = line,
+        .value = {0},
+    };
+}
+
+struct token token_new_number(size_t line, struct strview lexeme, union token_value value) {
+    return (struct token) {
+        .kind = TOKEN_KIND_NUMBER,
+        .lexeme = lexeme,
+        .line = line,
+        .value = value,
+    };
+}
+
 size_t token_len(const struct token* t) {
     return t->lexeme.len;
 }
 
-const char* token_kind_to_cstr(struct token* token) {
+const char* token_kind_to_cstr(const struct token* token) {
     switch (token->kind) {
     case TOKEN_KIND_EOF: return "TOKEN_KIND_EOF";
     case TOKEN_KIND_LEFT_PAREN: return "TOKEN_KIND_LEFT_PAREN";
@@ -55,7 +73,7 @@ const char* token_kind_to_cstr(struct token* token) {
     }
 }
 
-void token_fprint(FILE* file, struct token* token) {
+void token_fprint(FILE* file, const struct token* token) {
     switch(token->kind) {
     case TOKEN_KIND_NUMBER: {
         double val = token->value.number.val;
