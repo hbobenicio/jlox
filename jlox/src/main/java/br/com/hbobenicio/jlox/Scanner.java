@@ -107,7 +107,7 @@ class Scanner {
                 if (isAlpha(c)) {
                     identifier();
                 } else {
-                    Lox.error(line, String.format("unexpected character '%c'", c));
+                    JLox.error(line, String.format("unexpected character '%c'", c));
                 }
             }
         }
@@ -124,7 +124,7 @@ class Scanner {
             }
         }
         if (isAtEnd()) {
-            Lox.error(line, "unterminated block comment. expecting token '*/'");
+            JLox.error(line, "unterminated block comment. expecting token '*/'");
             return;
         }
         advance();
@@ -176,7 +176,7 @@ class Scanner {
         }
 
         if (isAtEnd()) {
-            Lox.error(line, "unterminated string. expecting token '\"'");
+            JLox.error(line, "unterminated string. expecting token '\"'");
             return;
         }
 
