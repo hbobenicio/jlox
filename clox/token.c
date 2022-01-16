@@ -81,10 +81,18 @@ void token_fprint(FILE* file, const struct token* token) {
     } break;
     case TOKEN_KIND_STRING: {
         struct strview sv = token->value.string.val;
+        // TODO this could be improved to remove this allocation
         char* cstr = calloc(sv.len + 1, sizeof(char));
         memcpy(cstr, sv.ptr, sv.len);
         fprintf(file, "<%s(%s)>", token_kind_to_cstr(token), cstr);
         free(cstr);
+    } break;
+    case TOKEN_KIND_IDENTIFIER: {
+        // TODO this could be improved to remove this allocation.
+        char* idname = calloc(token->lexeme.len + 1, sizeof(char));
+        memcpy(idname, token->lexeme.ptr, token->lexeme.len);
+        fprintf(file, "<%s(%s)>", token_kind_to_cstr(token), idname);
+        free(idname);
     } break;
     default:
         fprintf(file, "%s", token_kind_to_cstr(token));
