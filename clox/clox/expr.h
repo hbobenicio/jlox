@@ -6,10 +6,10 @@
 
 struct expr {
     enum expr_kind {
-        EXPR_BINARY,
-        EXPR_GROUPING,
-        EXPR_LITERAL,
-        EXPR_UNARY,
+        EXPR_KIND_BINARY,
+        EXPR_KIND_GROUPING,
+        EXPR_KIND_LITERAL,
+        EXPR_KIND_UNARY,
     } kind;
 
     union {
@@ -25,8 +25,8 @@ struct expr {
 
         struct expr_literal {
             enum expr_literal_kind {
-                EXPR_LITERAL_NUMBER,
-                EXPR_LITERAL_STRING,
+                EXPR_LITERAL_KIND_NUMBER,
+                EXPR_LITERAL_KIND_STRING,
             } kind;
 
             union {
@@ -48,5 +48,14 @@ struct expr {
 
     } value;
 };
+
+struct expr_visitor {
+    void (*visit_binary)(struct expr_binary* expr_bin, void* userctx);
+    void (*visit_grouping)(struct expr_grouping* expr_group, void* userctx);
+    void (*visit_literal)(struct expr_literal* expr_lit, void* userctx);
+    void (*visit_unary)(struct expr_unary* expr_un, void* userctx);
+};
+
+void expr_accept(struct expr* expr, const struct expr_visitor* visitor, void* userctx);
 
 #endif

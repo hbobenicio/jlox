@@ -1,2 +1,4 @@
 /**/*.o
-clox
+main
+test-ast-printer
+/**/a.out

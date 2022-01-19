@@ -7,13 +7,13 @@
 #include <sys/mman.h>
 
 #define STB_DS_IMPLEMENTATION
-#include "stb_ds.h"
+#include "clox/stb_ds.h"
 
 #include "ansi.h"
-#include "str.h"
-#include "commons.h"
-#include "token.h"
-#include "scanner.h"
+#include "clox/str.h"
+#include "clox/commons.h"
+#include "clox/token.h"
+#include "clox/scanner.h"
 
 #ifndef FILE_PATH_MAX_LEN
 #define FILE_PATH_MAX_LEN 1024
