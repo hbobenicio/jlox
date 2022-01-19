@@ -5,10 +5,7 @@
 
 struct expr;
 
-struct ast_printer {
-    FILE* file;
-};
-
-void ast_printer_print(struct ast_printer* ast_printer, struct expr* expr);
+void ast_printer_println(struct expr* expr);
+void ast_printer_fprintln(FILE* file, struct expr* expr);
 
 #endif

@@ -8,3 +8,7 @@ echo "ok."
 echo "=== test-ast-printer ==="
 clang -Wall -Wextra -Wpedantic -g -O0 -fsanitize=address -o test-ast-printer clox/*.c test-ast-printer.c
 echo "ok."
+
+echo "=== test-ast-rpn-printer ==="
+clang -Wall -Wextra -Wpedantic -g -O0 -fsanitize=address -o test-ast-rpn-printer clox/*.c test-ast-rpn-printer.c
+echo "ok."

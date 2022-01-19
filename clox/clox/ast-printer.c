@@ -4,6 +4,10 @@
 #include <stdbool.h>
 #include <assert.h>
 
+struct ast_printer {
+    FILE* file;
+};
+
 static void ast_printer_visit_binary(struct expr_binary* expr_bin, void* userctx);
 static void ast_printer_visit_grouping(struct expr_grouping* expr_group, void* userctx);
 static void ast_printer_visit_literal(struct expr_literal* expr_lit, void* userctx);
@@ -16,8 +20,18 @@ static const struct expr_visitor ast_printer_expr_visitor = {
     .visit_unary = ast_printer_visit_unary,
 };
 
-void ast_printer_print(struct ast_printer* ast_printer, struct expr* expr) {
-    expr_accept(expr, &ast_printer_expr_visitor, ast_printer);
+void ast_printer_println(struct expr* expr) {
+    ast_printer_fprintln(stdout, expr);
+}
+
+void ast_printer_fprintln(FILE* file, struct expr* expr) {
+    struct ast_printer ast_printer = {
+        .file = file,
+    };
+
+    expr_accept(expr, &ast_printer_expr_visitor, &ast_printer);
+
+    fputs("\n", file);
 }
 
 static void ast_printer_visit_binary(struct expr_binary* expr_bin, void* userctx) {

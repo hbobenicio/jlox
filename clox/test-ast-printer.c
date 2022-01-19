@@ -66,10 +66,5 @@ int main() {
         },
     };
 
-    struct ast_printer ast_printer = {
-        .file = stdout,
-    };
-
-    ast_printer_print(&ast_printer, &expr);
-    puts("");
+    ast_printer_println(&expr);
 }
