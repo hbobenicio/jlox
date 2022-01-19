@@ -2,7 +2,7 @@
 set -eu -o pipefail
 
 echo "=== main ==="
-clang -Wall -Wextra -Wpedantic -g -O0 -fsanitize=address -o main             clox/*.c main.c
+clang -Wall -Wextra -Wpedantic -g -O0 -fsanitize=address -o main clox/*.c main.c
 echo "ok."
 
 echo "=== test-ast-printer ==="

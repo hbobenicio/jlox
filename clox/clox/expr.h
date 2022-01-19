@@ -49,6 +49,8 @@ struct expr {
     } value;
 };
 
+//TODO add some expr constructors to improve the API
+
 struct expr_visitor {
     void (*visit_binary)(struct expr_binary* expr_bin, void* userctx);
     void (*visit_grouping)(struct expr_grouping* expr_group, void* userctx);
