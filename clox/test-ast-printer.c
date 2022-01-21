@@ -10,24 +10,8 @@
 int main() {
     // TODO can we improve this with an AST allocator?
     // TODO we can create some constructors to ease this construction, right? :)
-    struct expr lit_45_67 = {
-        .kind = EXPR_KIND_LITERAL,
-        .value.literal = (struct expr_literal) {
-            .kind = EXPR_LITERAL_KIND_NUMBER,
-            .value.number = (struct expr_literal_number) {
-                .val = 45.67,
-            },
-        },
-    };
-    struct expr lit_123 = {
-        .kind = EXPR_KIND_LITERAL,
-        .value.literal = (struct expr_literal) {
-            .kind = EXPR_LITERAL_KIND_NUMBER,
-            .value.number = (struct expr_literal_number) {
-                .val = 123.0,
-            },
-        },
-    };
+    struct expr lit_45_67 = expr_literal_number_create(45.67);
+    struct expr lit_123 = expr_literal_number_create(123.0);
     struct expr expr_left = {
         .kind = EXPR_KIND_UNARY,
         .value.unary = (struct expr_unary) {
@@ -43,12 +27,7 @@ int main() {
             .right = &lit_123,
         },
     };
-    struct expr expr_right = {
-        .kind = EXPR_KIND_GROUPING,
-        .value.grouping = (struct expr_grouping) {
-            .expr = &lit_45_67,
-        },
-    };
+    struct expr expr_right = expr_grouping_create(&lit_45_67);
     struct expr expr = {
         .kind = EXPR_KIND_BINARY,
         .value.binary = (struct expr_binary) {

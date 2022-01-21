@@ -10,42 +10,10 @@
 int main() {
     // TODO can we improve this with an AST allocator?
     // TODO we can create some constructors to ease this construction, right? :)
-    struct expr one = {
-        .kind = EXPR_KIND_LITERAL,
-        .value.literal = {
-            .kind = EXPR_LITERAL_KIND_NUMBER,
-            .value.number = {
-                .val = 1.0,
-            },
-        },
-    };
-    struct expr two = {
-        .kind = EXPR_KIND_LITERAL,
-        .value.literal = {
-            .kind = EXPR_LITERAL_KIND_NUMBER,
-            .value.number = {
-                .val = 2.0,
-            },
-        },
-    };
-    struct expr three = {
-        .kind = EXPR_KIND_LITERAL,
-        .value.literal = {
-            .kind = EXPR_LITERAL_KIND_NUMBER,
-            .value.number = {
-                .val = 3.0,
-            },
-        },
-    };
-    struct expr four = {
-        .kind = EXPR_KIND_LITERAL,
-        .value.literal = {
-            .kind = EXPR_LITERAL_KIND_NUMBER,
-            .value.number = {
-                .val = 4.0,
-            },
-        },
-    };
+    struct expr one = expr_literal_number_create(1.0);
+    struct expr two = expr_literal_number_create(2.0);
+    struct expr three = expr_literal_number_create(3.0);
+    struct expr four = expr_literal_number_create(4.0);
     struct expr left_expr = {
         .kind = EXPR_KIND_BINARY,
         .value.binary = {
@@ -78,18 +46,8 @@ int main() {
             .right = &three,
         },
     };
-    struct expr group_left = {
-        .kind = EXPR_KIND_GROUPING,
-        .value.grouping = {
-            .expr = &left_expr,
-        },
-    };
-    struct expr group_right = {
-        .kind = EXPR_KIND_GROUPING,
-        .value.grouping = {
-            .expr = &right_expr,
-        },
-    };
+    struct expr group_left = expr_grouping_create(&left_expr);
+    struct expr group_right = expr_grouping_create(&right_expr);
     struct expr expr = {
         .kind = EXPR_KIND_BINARY,
         .value.binary = {
