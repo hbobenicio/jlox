@@ -49,8 +49,9 @@ struct expr {
     } value;
 };
 
-struct expr expr_literal_number_create(double num);
-struct expr expr_grouping_create(struct expr* expr);
+struct expr* expr_binary_new(struct expr* left, struct token operator, struct expr* right);
+struct expr  expr_literal_number_create(double num);
+struct expr  expr_grouping_create(struct expr* expr);
 
 struct expr_visitor {
     void (*visit_binary)(struct expr_binary* expr_bin, void* userctx);

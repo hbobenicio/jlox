@@ -8,6 +8,21 @@ static void expr_accept_grouping(struct expr_grouping* expr, const struct expr_v
 static void expr_accept_literal(struct expr_literal* expr, const struct expr_visitor* visitor, void* userctx);
 static void expr_accept_unary(struct expr_unary* expr, const struct expr_visitor* visitor, void* userctx);
 
+struct expr* expr_binary_new(struct expr* left, struct token operator, struct expr* right) {
+    struct expr* expr = malloc(sizeof(struct expr));
+    if (expr == NULL) {
+        fprintf(stderr, "error: out of memory.\n");
+        return expr;
+    }
+    expr->kind = EXPR_KIND_BINARY;
+    expr->value.binary = (struct expr_binary) {
+        .left = left,
+        .operator = operator,
+        .right = right,
+    };
+    return expr;
+}
+
 struct expr expr_literal_number_create(double num) {
     return (struct expr) {
         .kind = EXPR_KIND_LITERAL,

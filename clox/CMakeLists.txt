@@ -27,6 +27,7 @@ add_library(clox
     "${PROJECT_SOURCE_DIR}/clox/expr.c"
     "${PROJECT_SOURCE_DIR}/clox/ast-printer.c"
     "${PROJECT_SOURCE_DIR}/clox/ast-rpn-printer.c"
+    "${PROJECT_SOURCE_DIR}/clox/parser.c"
 )
 # The value 17 from this property required cmake 3.21 version
 set_target_properties(clox PROPERTIES
