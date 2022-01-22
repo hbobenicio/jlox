@@ -1,11 +1,11 @@
 #include <stdio.h>
 
 #define STB_DS_IMPLEMENTATION
-#include "clox/stb_ds.h"
+#include <clox/stb_ds.h>
 
-#include "clox/token.h"
-#include "clox/expr.h"
-#include "clox/ast-printer.h"
+#include <clox/token.h>
+#include <clox/expr.h>
+#include <clox/ast-printer.h>
 
 int main() {
     // TODO can we improve this with an AST allocator?
