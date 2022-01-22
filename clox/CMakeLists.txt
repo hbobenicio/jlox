@@ -18,7 +18,7 @@ project(clox
 # clox library #
 ################
 
-add_library(clox STATIC
+add_library(clox
     "${PROJECT_SOURCE_DIR}/clox/commons.c"
     "${PROJECT_SOURCE_DIR}/clox/strview.c"
     "${PROJECT_SOURCE_DIR}/clox/str.c"
@@ -65,9 +65,9 @@ include(CTest)
 add_executable(ast-printer.unit "${PROJECT_SOURCE_DIR}/clox/ast-printer.unit.c")
 target_include_directories(ast-printer.unit PRIVATE "${PROJECT_SOURCE_DIR}")
 target_link_libraries(ast-printer.unit clox)
-add_test(NAME ast-printer.unit COMMAND ast-printer.unit)
+add_test(NAME ast-printer.unit COMMAND "${CMAKE_CURRENT_BINARY_DIR}/ast-printer.unit")
 
 add_executable(ast-rpn-printer.unit "${PROJECT_SOURCE_DIR}/clox/ast-rpn-printer.unit.c")
 target_include_directories(ast-rpn-printer.unit PRIVATE "${PROJECT_SOURCE_DIR}")
 target_link_libraries(ast-rpn-printer.unit clox)
-add_test(NAME ast-rpn-printer.unit COMMAND ast-rpn-printer.unit)
+add_test(NAME ast-rpn-printer.unit COMMAND "${CMAKE_CURRENT_BINARY_DIR}/ast-rpn-printer.unit")
