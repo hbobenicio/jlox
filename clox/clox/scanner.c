@@ -27,10 +27,17 @@ static char scanner_peek_next(const struct scanner* s);
 static bool is_alpha(char c);
 
 static void scanner_init(struct scanner* s, struct strview src) {
+    scanner_free(s);
     s->input = src;
     s->start = s->current = 0;
     s->line = 1;
     s->tokens = NULL;
+}
+
+void scanner_free(struct scanner* s) {
+    if (s->tokens != NULL) {
+        arrfree(s->tokens);
+    }
 }
 
 int scanner_scan_all(struct scanner* s, struct strview src) {

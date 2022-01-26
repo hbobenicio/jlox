@@ -11,6 +11,7 @@
 
 static bool match(struct parser* p, enum token_kind token_kind);
 static bool check(const struct parser* p, enum token_kind token_kind);
+static int consume(struct parser* p, enum token_kind token_kind, const char* msg);
 // Precisa mesmo retornar um Token?
 static struct token advance(struct parser* p);
 static struct token peek(const struct parser* p);
@@ -20,6 +21,15 @@ static bool end_of_input(const struct parser* p);
 void parser_init(struct parser* p, struct token* tokens) {
     p->tokens = tokens;
     p->current = 0;
+}
+
+struct expr* parser_parse(struct parser* p) {
+    struct expr* expr = parser_parse_expr(p);
+    if (expr == NULL) {
+        fputs("error: parsing failed.\n", stderr);
+        return NULL;
+    }
+    return expr;
 }
 
 struct expr* parser_parse_expr(struct parser* p) {
@@ -170,14 +180,33 @@ struct expr* parser_parse_expr_primary(struct parser* p) {
         if (expr == NULL) {
             return NULL;
         }
-        consume(p, TOKEN_KIND_RIGHT_PAREN, "expect ')' after expression");
+        if (consume(p, TOKEN_KIND_RIGHT_PAREN, "expect ')' after expression") != 0) {
+            // TODO free expr recursively
+            return NULL;
+        }
         return expr_grouping_new(expr);
     }
-    //TODO improve error message
-    fprintf(stderr, "error: unexpected token\n");
+    struct token current_token = peek(p);
+    fprintf(stderr, "error: line %zu: expecting a primary expression (a literal or an opening parentesis '('), got '%s'\n", current_token.line, token_to_cstr(&current_token));
     return NULL;
 }
 
+static int consume(struct parser* p, enum token_kind token_kind, const char* msg) {
+    if (check(p, token_kind)) {
+        advance(p);
+        return 0;
+    }
+
+    struct token current_token = peek(p);
+    fprintf(stderr, "error: line %zu: %s: expected token %s, got %s\n",
+        current_token.line,
+        msg,
+        token_kind_to_cstr(token_kind),
+        token_to_cstr(&current_token)
+    );
+
+    return 1;
+}
 
 static bool match(struct parser* p, enum token_kind token_kind) {
     if (check(p, token_kind)) {

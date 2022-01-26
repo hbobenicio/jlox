@@ -13,6 +13,9 @@
 #include <clox/commons.h>
 #include <clox/token.h>
 #include <clox/scanner.h>
+#include <clox/expr.h>
+#include <clox/parser.h>
+#include <clox/ast-printer.h>
 
 #include "ansi.h"
 
@@ -56,12 +59,28 @@ int script_run(const char* script_path, size_t script_path_len) {
     struct scanner scanner = {0};
     scanner_scan_all(&scanner, strview_from_str(script_contents));
 
+    struct parser parser;
+    parser_init(&parser, scanner.tokens);
+
+    struct expr* expr = parser_parse(&parser);
+    if (expr == NULL) {
+        scanner_free(&scanner);
+        munmap(script_contents.ptr, script_contents.len);
+        return 1;
+    }
+
+    ast_printer_println(expr);
+
+    // NOTE: ATM tokens lexemes use strview, so they depend on the input file buffer.
+    //       The expr ast use str, so they dont depend on the input file buffer, but they use copies of tokens...
     munmap(script_contents.ptr, script_contents.len);
+
     return 0;
 }
 
 void repl_start(void) {
     struct scanner scanner = {0};
+    struct parser parser;
 
     char line[1024] = {0};
     const size_t line_cap = ARRAY_SIZE(line);
@@ -76,10 +95,19 @@ void repl_start(void) {
         const size_t line_len = strnlen(line, line_cap);
 
         scanner_scan_all_from_cstr(&scanner, line, line_len);
-        for (long i = 0; i < arrlen(scanner.tokens); i++) {
-            token_fprint(stdout, &scanner.tokens[i]);
-            putchar(' ');
+        // for (long i = 0; i < arrlen(scanner.tokens); i++) {
+        //     token_fprint(stdout, &scanner.tokens[i]);
+        //     putchar(' ');
+        // }
+        // puts("");
+        parser_init(&parser, scanner.tokens);
+
+        struct expr* expr = parser_parse(&parser);
+        if (expr == NULL) {
+            continue;
         }
-        puts("");
+
+        ast_printer_println(expr);
     }
+    // TODO scanner_free
 }

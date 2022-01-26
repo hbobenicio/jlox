@@ -12,6 +12,7 @@ struct parser {
 
 void parser_init(struct parser* p, struct token* tokens);
 
+struct expr* parser_parse(struct parser* p);
 struct expr* parser_parse_expr(struct parser* p);
 struct expr* parser_parse_expr_equality(struct parser* p);
 struct expr* parser_parse_expr_comparison(struct parser* p);

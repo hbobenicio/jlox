@@ -26,8 +26,12 @@ size_t token_len(const struct token* t) {
     return t->lexeme.len;
 }
 
-const char* token_kind_to_cstr(const struct token* token) {
-    switch (token->kind) {
+const char* token_to_cstr(const struct token* token) {
+    return token_kind_to_cstr(token->kind);
+}
+
+const char* token_kind_to_cstr(enum token_kind kind) {
+    switch (kind) {
     case TOKEN_KIND_EOF: return "TOKEN_KIND_EOF";
     case TOKEN_KIND_LEFT_PAREN: return "TOKEN_KIND_LEFT_PAREN";
     case TOKEN_KIND_RIGHT_PAREN: return "TOKEN_KIND_RIGHT_PAREN";
@@ -77,24 +81,24 @@ void token_fprint(FILE* file, const struct token* token) {
     switch(token->kind) {
     case TOKEN_KIND_NUMBER: {
         double val = token->value.number.val;
-        fprintf(file, "<%s(%lf)>", token_kind_to_cstr(token), val);
+        fprintf(file, "<%s(%lf)>", token_to_cstr(token), val);
     } break;
     case TOKEN_KIND_STRING: {
         struct strview sv = token->value.string.val;
         // TODO this could be improved to remove this allocation
         char* cstr = calloc(sv.len + 1, sizeof(char));
         memcpy(cstr, sv.ptr, sv.len);
-        fprintf(file, "<%s(%s)>", token_kind_to_cstr(token), cstr);
+        fprintf(file, "<%s(%s)>", token_to_cstr(token), cstr);
         free(cstr);
     } break;
     case TOKEN_KIND_IDENTIFIER: {
         // TODO this could be improved to remove this allocation.
         char* idname = calloc(token->lexeme.len + 1, sizeof(char));
         memcpy(idname, token->lexeme.ptr, token->lexeme.len);
-        fprintf(file, "<%s(%s)>", token_kind_to_cstr(token), idname);
+        fprintf(file, "<%s(%s)>", token_to_cstr(token), idname);
         free(idname);
     } break;
     default:
-        fprintf(file, "%s", token_kind_to_cstr(token));
+        fprintf(file, "%s", token_to_cstr(token));
     }
 }

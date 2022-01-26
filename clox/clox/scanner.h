@@ -16,5 +16,6 @@ struct scanner {
 
 int scanner_scan_all(struct scanner* s, struct strview src);
 int scanner_scan_all_from_cstr(struct scanner* s, const char* src, size_t src_len);
+void scanner_free(struct scanner* s);
 
 #endif
