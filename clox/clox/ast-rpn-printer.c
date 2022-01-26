@@ -63,6 +63,14 @@ static void ast_rpn_printer_visit_literal(struct expr_literal* expr_lit, void* u
         fprintf(ast_rpn_printer->file, "%s", expr_lit->value.string.val.ptr);
         break;
 
+    case EXPR_LITERAL_KIND_BOOL:
+        fprintf(ast_rpn_printer->file, "%s", (expr_lit->value.boolean.val) ? "true" : "false");
+        break;
+
+    case EXPR_LITERAL_KIND_NIL:
+        fputs("nil", ast_rpn_printer->file);
+        break;
+
     default:
         assert(false && "unsupported expr_lit variant kind. did you added a new variant to it recently?");
         break;
