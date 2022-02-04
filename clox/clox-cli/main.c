@@ -92,6 +92,10 @@ void repl_start(void) {
         printf(CLOX_ANSI_HWHT "> " CLOX_ANSI_RESET);
 
         fgets(line, line_cap, stdin);
+        if (line[0] == '\0') {
+            break;
+        }
+
         const size_t line_len = strnlen(line, line_cap);
 
         scanner_scan_all_from_cstr(&scanner, line, line_len);
