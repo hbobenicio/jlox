@@ -120,6 +120,8 @@ void repl_start(void) {
         struct clox_interpreter interpreter;
         struct clox_value value = clox_interpreter_eval(&interpreter, expr);
         clox_value_fprintln(stdout, value);
+
+        expr_free(expr);
     }
     // TODO scanner_free
 }

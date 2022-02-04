@@ -8,10 +8,10 @@ struct ast_rpn_printer {
     FILE* file;
 };
 
-static void ast_rpn_printer_visit_binary(struct expr_binary* expr_bin, void* userctx);
-static void ast_rpn_printer_visit_grouping(struct expr_grouping* expr_group, void* userctx);
-static void ast_rpn_printer_visit_literal(struct expr_literal* expr_lit, void* userctx);
-static void ast_rpn_printer_visit_unary(struct expr_unary* expr_un, void* userctx);
+static void ast_rpn_printer_visit_binary(struct expr* expr, void* userctx);
+static void ast_rpn_printer_visit_grouping(struct expr* expr, void* userctx);
+static void ast_rpn_printer_visit_literal(struct expr* expr, void* userctx);
+static void ast_rpn_printer_visit_unary(struct expr* expr, void* userctx);
 
 static const struct expr_visitor ast_rpn_printer_expr_visitor = {
     .visit_binary = ast_rpn_printer_visit_binary,
@@ -34,8 +34,9 @@ void ast_rpn_printer_fprintln(FILE* file, struct expr* expr) {
     fputs("\n", file);
 }
 
-static void ast_rpn_printer_visit_binary(struct expr_binary* expr_bin, void* userctx) {
+static void ast_rpn_printer_visit_binary(struct expr* expr, void* userctx) {
     struct ast_rpn_printer* ast_rpn_printer = userctx;
+    struct expr_binary* expr_bin = &expr->value.binary;
 
     expr_accept(expr_bin->left, &ast_rpn_printer_expr_visitor, userctx);
     fprintf(ast_rpn_printer->file, " ");
@@ -47,12 +48,13 @@ static void ast_rpn_printer_visit_binary(struct expr_binary* expr_bin, void* use
     fprintf(ast_rpn_printer->file, "%c", op);
 }
 
-static void ast_rpn_printer_visit_grouping(struct expr_grouping* expr_group, void* userctx) {
-    expr_accept(expr_group->expr, &ast_rpn_printer_expr_visitor, userctx);
+static void ast_rpn_printer_visit_grouping(struct expr* expr, void* userctx) {
+    expr_accept(expr->value.grouping.expr, &ast_rpn_printer_expr_visitor, userctx);
 }
 
-static void ast_rpn_printer_visit_literal(struct expr_literal* expr_lit, void* userctx) {
+static void ast_rpn_printer_visit_literal(struct expr* expr, void* userctx) {
     struct ast_rpn_printer* ast_rpn_printer = userctx;
+    struct expr_literal* expr_lit = &expr->value.literal;
     
     switch (expr_lit->kind) {
     case EXPR_LITERAL_KIND_NUMBER:
@@ -77,8 +79,9 @@ static void ast_rpn_printer_visit_literal(struct expr_literal* expr_lit, void* u
     }
 }
 
-static void ast_rpn_printer_visit_unary(struct expr_unary* expr_un, void* userctx) {
+static void ast_rpn_printer_visit_unary(struct expr* expr, void* userctx) {
     struct ast_rpn_printer* ast_rpn_printer = userctx;
+    struct expr_unary* expr_un = &expr->value.unary;
     
     expr_accept(expr_un->right, &ast_rpn_printer_expr_visitor, userctx);
 

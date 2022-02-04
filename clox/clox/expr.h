@@ -5,6 +5,7 @@
 #include "token.h"
 #include "str.h"
 #include "strview.h"
+#include "tree-traversal-order.h"
 
 enum expr_literal_kind {
     EXPR_LITERAL_KIND_NUMBER,
@@ -77,12 +78,14 @@ struct expr* expr_grouping_new(struct expr* expr);
 struct expr  expr_literal_number_create(double val);
 struct expr  expr_grouping_create(struct expr* expr);
 
+void expr_free(struct expr* expr);
+
 //TODO improve this by replacing the void return type to int, for error handling
 struct expr_visitor {
-    void (*visit_binary)(struct expr_binary* expr_bin, void* userctx);
-    void (*visit_grouping)(struct expr_grouping* expr_group, void* userctx);
-    void (*visit_literal)(struct expr_literal* expr_lit, void* userctx);
-    void (*visit_unary)(struct expr_unary* expr_un, void* userctx);
+    void (*visit_binary)(struct expr* expr, void* userctx);
+    void (*visit_grouping)(struct expr* expr, void* userctx);
+    void (*visit_literal)(struct expr* expr, void* userctx);
+    void (*visit_unary)(struct expr* expr, void* userctx);
 };
 
 void expr_accept(struct expr* expr, const struct expr_visitor* visitor, void* userctx);

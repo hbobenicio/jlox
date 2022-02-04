@@ -8,10 +8,10 @@ struct ast_printer {
     FILE* file;
 };
 
-static void ast_printer_visit_binary(struct expr_binary* expr_bin, void* userctx);
-static void ast_printer_visit_grouping(struct expr_grouping* expr_group, void* userctx);
-static void ast_printer_visit_literal(struct expr_literal* expr_lit, void* userctx);
-static void ast_printer_visit_unary(struct expr_unary* expr_un, void* userctx);
+static void ast_printer_visit_binary(struct expr* expr, void* userctx);
+static void ast_printer_visit_grouping(struct expr* expr, void* userctx);
+static void ast_printer_visit_literal(struct expr* expr, void* userctx);
+static void ast_printer_visit_unary(struct expr* expr, void* userctx);
 
 static const struct expr_visitor ast_printer_expr_visitor = {
     .visit_binary = ast_printer_visit_binary,
@@ -34,8 +34,9 @@ void ast_printer_fprintln(FILE* file, struct expr* expr) {
     fputs("\n", file);
 }
 
-static void ast_printer_visit_binary(struct expr_binary* expr_bin, void* userctx) {
+static void ast_printer_visit_binary(struct expr* expr, void* userctx) {
     struct ast_printer* ast_printer = userctx;
+    struct expr_binary* expr_bin = &expr->value.binary;
 
     char op = expr_bin->operator.lexeme.ptr[0];
 
@@ -46,16 +47,18 @@ static void ast_printer_visit_binary(struct expr_binary* expr_bin, void* userctx
     fprintf(ast_printer->file, ")");
 }
 
-static void ast_printer_visit_grouping(struct expr_grouping* expr_group, void* userctx) {
+static void ast_printer_visit_grouping(struct expr* expr, void* userctx) {
     struct ast_printer* ast_printer = userctx;
+    struct expr_grouping* expr_group = &expr->value.grouping;
 
     fprintf(ast_printer->file, "(group ");
     expr_accept(expr_group->expr, &ast_printer_expr_visitor, userctx);
     fprintf(ast_printer->file, ")");
 }
 
-static void ast_printer_visit_literal(struct expr_literal* expr_lit, void* userctx) {
+static void ast_printer_visit_literal(struct expr* expr, void* userctx) {
     struct ast_printer* ast_printer = userctx;
+    struct expr_literal* expr_lit = &expr->value.literal;
     
     switch (expr_lit->kind) {
     case EXPR_LITERAL_KIND_NUMBER:
@@ -80,8 +83,9 @@ static void ast_printer_visit_literal(struct expr_literal* expr_lit, void* userc
     }
 }
 
-static void ast_printer_visit_unary(struct expr_unary* expr_un, void* userctx) {
+static void ast_printer_visit_unary(struct expr* expr, void* userctx) {
     struct ast_printer* ast_printer = userctx;
+    struct expr_unary* expr_un = &expr->value.unary;
     
     char op = expr_un->operator.lexeme.ptr[0];
     fprintf(ast_printer->file, "(%c ", op);

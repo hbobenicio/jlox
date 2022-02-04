@@ -6,10 +6,10 @@
 
 #include "expr.h"
 
-static void eval_visit_binary(struct expr_binary* expr_bin, void* userctx);
-static void eval_visit_grouping(struct expr_grouping* expr_group, void* userctx);
-static void eval_visit_literal(struct expr_literal* expr_lit, void* userctx);
-static void eval_visit_unary(struct expr_unary* expr_un, void* userctx);
+static void eval_visit_binary(struct expr* expr, void* userctx);
+static void eval_visit_grouping(struct expr* expr, void* userctx);
+static void eval_visit_literal(struct expr* expr, void* userctx);
+static void eval_visit_unary(struct expr* expr, void* userctx);
 
 static bool is_truthy(struct clox_value value);
 static bool is_equal(struct clox_value left, struct clox_value right);
@@ -26,8 +26,9 @@ struct clox_value clox_interpreter_eval(struct clox_interpreter* interpreter, st
     return interpreter->value;
 }
 
-static void eval_visit_binary(struct expr_binary* expr_bin, void* userctx) {
+static void eval_visit_binary(struct expr* expr, void* userctx) {
     struct clox_interpreter* interpreter = userctx;
+    struct expr_binary* expr_bin = &expr->value.binary;
     
     struct clox_value left = clox_interpreter_eval(interpreter, expr_bin->left);
     struct clox_value right = clox_interpreter_eval(interpreter, expr_bin->right);
@@ -108,13 +109,15 @@ static void eval_visit_binary(struct expr_binary* expr_bin, void* userctx) {
     }
 }
 
-static void eval_visit_grouping(struct expr_grouping* expr_group, void* userctx) {
+static void eval_visit_grouping(struct expr* expr, void* userctx) {
     struct clox_interpreter* interpreter = userctx;
-    interpreter->value = clox_interpreter_eval(interpreter, expr_group->expr);
+
+    interpreter->value = clox_interpreter_eval(interpreter, expr->value.grouping.expr);
 }
 
-static void eval_visit_literal(struct expr_literal* expr_lit, void* userctx) {
+static void eval_visit_literal(struct expr* expr, void* userctx) {
     struct clox_interpreter* interpreter = userctx;
+    struct expr_literal* expr_lit = &expr->value.literal;
 
     switch (expr_lit->kind) {
     case EXPR_LITERAL_KIND_NUMBER:
@@ -141,8 +144,9 @@ static void eval_visit_literal(struct expr_literal* expr_lit, void* userctx) {
     }
 }
 
-static void eval_visit_unary(struct expr_unary* expr_un, void* userctx) {
+static void eval_visit_unary(struct expr* expr, void* userctx) {
     struct clox_interpreter* interpreter = userctx;
+    struct expr_unary* expr_un = &expr->value.unary;
 
     struct clox_value right = clox_interpreter_eval(interpreter, expr_un->right);
 

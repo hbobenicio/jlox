@@ -4,10 +4,19 @@
 #include <stdbool.h>
 #include <assert.h>
 
-static void expr_accept_binary(struct expr_binary* expr, const struct expr_visitor* visitor, void* userctx);
-static void expr_accept_grouping(struct expr_grouping* expr, const struct expr_visitor* visitor, void* userctx);
-static void expr_accept_literal(struct expr_literal* expr, const struct expr_visitor* visitor, void* userctx);
-static void expr_accept_unary(struct expr_unary* expr, const struct expr_visitor* visitor, void* userctx);
+// Visitors for freeing expressions
+// (using this recursively slow approach until we get our Ast/Expr Allocator)
+static void expr_free_visit_binary(struct expr* expr, void* userctx);
+static void expr_free_visit_grouping(struct expr* expr, void* userctx);
+static void expr_free_visit_literal(struct expr* expr, void* userctx);
+static void expr_free_visit_unary(struct expr* expr, void* userctx);
+
+static const struct expr_visitor expr_free_visitor = {
+    .visit_binary = expr_free_visit_binary,
+    .visit_grouping = expr_free_visit_grouping,
+    .visit_literal = expr_free_visit_literal,
+    .visit_unary = expr_free_visit_unary,
+};
 
 struct expr* expr_binary_new(struct expr* left, struct token operator, struct expr* right) {
     struct expr* expr = malloc(sizeof(struct expr));
@@ -155,21 +164,23 @@ struct expr expr_grouping_create(struct expr* expr) {
 }
 
 void expr_accept(struct expr* expr, const struct expr_visitor* visitor, void* userctx) {
+    // Don't call other accepts inside an accept function. just visitors.
+    // let visitors call the accept back to this module, which improves traversal flexibility
     switch (expr->kind) {
     case EXPR_KIND_BINARY:
-        expr_accept_binary(&expr->value.binary, visitor, userctx);
+        visitor->visit_binary(expr, userctx);
         break;
 
     case EXPR_KIND_GROUPING:
-        expr_accept_grouping(&expr->value.grouping, visitor, userctx);
+        visitor->visit_grouping(expr, userctx);
         break;
 
     case EXPR_KIND_LITERAL:
-        expr_accept_literal(&expr->value.literal, visitor, userctx);
+        visitor->visit_literal(expr, userctx);
         break;
 
     case EXPR_KIND_UNARY:
-        expr_accept_unary(&expr->value.unary, visitor, userctx);
+        visitor->visit_unary(expr, userctx);
         break;
     
     default:
@@ -178,18 +189,37 @@ void expr_accept(struct expr* expr, const struct expr_visitor* visitor, void* us
     }
 }
 
-static void expr_accept_binary(struct expr_binary* expr, const struct expr_visitor* visitor, void* userctx) {
-    visitor->visit_binary(expr, userctx);
+// This is implemented basically as a post-order visitor.
+// Maybe we eventually end up with multiple post-order implementations.
+// Could we abstract those implementations as one and offer an extension point useful enough? (func ptr?)
+void expr_free(struct expr* expr) {
+    expr_accept(expr, &expr_free_visitor, NULL);
 }
 
-static void expr_accept_grouping(struct expr_grouping* expr, const struct expr_visitor* visitor, void* userctx) {
-    visitor->visit_grouping(expr, userctx);
+// Memory free must be a Postorder traversal
+static void expr_free_visit_binary(struct expr* expr, void* userctx) {
+    (void) userctx;
+    expr_free(expr->value.binary.left);
+    expr_free(expr->value.binary.right);
+    free(expr);
 }
 
-static void expr_accept_literal(struct expr_literal* expr, const struct expr_visitor* visitor, void* userctx) {
-    visitor->visit_literal(expr, userctx);
+static void expr_free_visit_grouping(struct expr* expr, void* userctx) {
+    (void) userctx;
+    expr_free(expr->value.grouping.expr);
+    free(expr);
 }
 
-static void expr_accept_unary(struct expr_unary* expr, const struct expr_visitor* visitor, void* userctx) {
-    visitor->visit_unary(expr, userctx);
+static void expr_free_visit_literal(struct expr* expr, void* userctx) {
+    (void) userctx;
+    if (expr->value.literal.kind == EXPR_LITERAL_KIND_STRING) {
+        str_free(expr->value.literal.value.string.val);
+    }
+    free(expr);
+}
+
+static void expr_free_visit_unary(struct expr* expr, void* userctx) {
+    (void) userctx;
+    expr_free(expr->value.unary.right);
+    free(expr);
 }
