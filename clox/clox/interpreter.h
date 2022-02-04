@@ -1,0 +1,4 @@
+#ifndef CLOX_INTERPRETER_H
+#define CLOX_INTERPRETER_H
+
+#endif

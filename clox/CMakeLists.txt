@@ -6,6 +6,13 @@ project(clox
     LANGUAGES C
 )
 
+option(CLOX_DISABLE_CUSTOM_FLAGS "Disable the custom compile/link flags used by default" OFF)
+
+if(NOT ${CLOX_DISABLE_CUSTOM_FLAGS})
+    set(CMAKE_C_FLAGS_DEBUG   "${CMAKE_C_FLAGS_DEBUG}   -Wall -Wextra -Wpedantic -Werror=vla -O0 -ggdb -fsanitize=address,undefined -fno-omit-frame-pointer")
+    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Wall -Wextra -Wpedantic -Werror=vla -O3 -march=native")
+endif()
+
 ###############
 # Conan Setup #
 ###############
@@ -28,18 +35,16 @@ add_library(clox
     "${PROJECT_SOURCE_DIR}/clox/ast-printer.c"
     "${PROJECT_SOURCE_DIR}/clox/ast-rpn-printer.c"
     "${PROJECT_SOURCE_DIR}/clox/parser.c"
+    "${PROJECT_SOURCE_DIR}/clox/interpreter.c"
 )
+
 # The value 17 from this property required cmake 3.21 version
-set_target_properties(clox PROPERTIES
-    C_STANDARD 17
-    # PUBLIC_HEADER "${PROJECT_SOURCE_DIR}/natc-commons/include/natc/commons/strview.h"
-)
-target_include_directories(clox
-    PUBLIC
-        "${PROJECT_SOURCE_DIR}/clox"
-    # PRIVATE
-    #     "${PROJECT_SOURCE_DIR}/natc-commons/src"
-)
+# PUBLIC_HEADER "${PROJECT_SOURCE_DIR}/natc-commons/include/natc/commons/strview.h"
+set_target_properties(clox PROPERTIES C_STANDARD 17)
+
+# PRIVATE
+#     "${PROJECT_SOURCE_DIR}/natc-commons/src"
+target_include_directories(clox PUBLIC "${PROJECT_SOURCE_DIR}/clox")
 
 ##########################
 # main (repl) executable #
