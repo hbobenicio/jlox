@@ -10,6 +10,9 @@ struct str {
     size_t cap;
 };
 
+struct str str_empty(void);
+
 bool str_equals(struct str a, struct str b);
+struct str str_concat(struct str a, struct str b);
 
 #endif

@@ -37,7 +37,8 @@ static void eval_visit_binary(struct expr_binary* expr_bin, void* userctx) {
             if (left.kind == CLOX_VALUE_KIND_NUMBER && right.kind == CLOX_VALUE_KIND_NUMBER) {
                 interpreter->value = clox_value_number(left.as.number + right.as.number);
             } else if (left.kind == CLOX_VALUE_KIND_STRING && right.kind == CLOX_VALUE_KIND_STRING) {
-                //TODO concatenate left and right strings and set it to interpreter->value
+                //FIXME care about leaks from here... str_concat allocates a new buffer
+                interpreter->value = clox_value_string(str_concat(left.as.string, right.as.string));
             } else {
                 //TODO improve error handling
                 assert(false && "plus(+) operator is only valid for operands of the same type (number or string)");
@@ -121,7 +122,9 @@ static void eval_visit_literal(struct expr_literal* expr_lit, void* userctx) {
         break;
 
     case EXPR_LITERAL_KIND_STRING:
-        // TODO
+        //FIXME it should allocate a new string, instead of borrowing it.
+        //      values must have independent lifecycle from the AST
+        interpreter->value = clox_value_string(expr_lit->value.string.val);
         break;
 
     case EXPR_LITERAL_KIND_BOOL:
