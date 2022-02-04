@@ -35,6 +35,7 @@ add_library(clox
     "${PROJECT_SOURCE_DIR}/clox/ast-printer.c"
     "${PROJECT_SOURCE_DIR}/clox/ast-rpn-printer.c"
     "${PROJECT_SOURCE_DIR}/clox/parser.c"
+    "${PROJECT_SOURCE_DIR}/clox/value.c"
     "${PROJECT_SOURCE_DIR}/clox/interpreter.c"
 )
 

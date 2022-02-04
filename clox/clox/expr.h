@@ -5,54 +5,65 @@
 #include "token.h"
 #include "str.h"
 #include "strview.h"
-struct expr {
-    enum expr_kind {
-        EXPR_KIND_BINARY,
-        EXPR_KIND_GROUPING,
-        EXPR_KIND_LITERAL,
-        EXPR_KIND_UNARY,
-    } kind;
 
+enum expr_literal_kind {
+    EXPR_LITERAL_KIND_NUMBER,
+    EXPR_LITERAL_KIND_STRING,
+    EXPR_LITERAL_KIND_BOOL,
+    EXPR_LITERAL_KIND_NIL,
+};
+
+struct expr_literal_number {
+    double val;
+};
+
+struct expr_literal_string {
+    // TODO this could be improved maybe... it's ok for now
+    struct str val;
+};
+
+struct expr_literal_bool {
+    bool val;
+};
+
+enum expr_kind {
+    EXPR_KIND_BINARY,
+    EXPR_KIND_GROUPING,
+    EXPR_KIND_LITERAL,
+    EXPR_KIND_UNARY,
+};
+
+struct expr_binary {
+    struct expr* left;
+    struct token operator;
+    struct expr* right;
+};
+
+struct expr_grouping {
+    struct expr* expr;
+};
+
+struct expr_literal {
+    enum expr_literal_kind kind;
     union {
-        struct expr_binary {
-            struct expr* left;
-            struct token operator;
-            struct expr* right;
-        } binary;
+        struct expr_literal_number number;
+        struct expr_literal_string string;
+        struct expr_literal_bool boolean;
+    } value;
+};
 
-        struct expr_grouping {
-            struct expr* expr;
-        } grouping;
+struct expr_unary {
+    struct token operator;
+    struct expr* right;
+};
 
-        struct expr_literal {
-            enum expr_literal_kind {
-                EXPR_LITERAL_KIND_NUMBER,
-                EXPR_LITERAL_KIND_STRING,
-                EXPR_LITERAL_KIND_BOOL,
-                EXPR_LITERAL_KIND_NIL,
-            } kind;
-
-            union {
-                struct expr_literal_number {
-                    double val;
-                } number;
-
-                struct expr_literal_string {
-                    // TODO this could be improved maybe... it's ok for now
-                    struct str val;
-                } string;
-
-                struct expr_literal_bool {
-                    bool val;
-                } boolean;
-            } value;
-        } literal;
-
-        struct expr_unary {
-            struct token operator;
-            struct expr* right;
-        } unary;
-
+struct expr {
+    enum expr_kind kind;
+    union {
+        struct expr_binary binary;
+        struct expr_grouping grouping;
+        struct expr_literal literal;
+        struct expr_unary unary;
     } value;
 };
 
@@ -66,6 +77,7 @@ struct expr* expr_grouping_new(struct expr* expr);
 struct expr  expr_literal_number_create(double val);
 struct expr  expr_grouping_create(struct expr* expr);
 
+//TODO improve this by replacing the void return type to int, for error handling
 struct expr_visitor {
     void (*visit_binary)(struct expr_binary* expr_bin, void* userctx);
     void (*visit_grouping)(struct expr_grouping* expr_group, void* userctx);

@@ -16,6 +16,8 @@
 #include <clox/expr.h>
 #include <clox/parser.h>
 #include <clox/ast-printer.h>
+#include <clox/interpreter.h>
+#include <clox/value.h>
 
 #include "ansi.h"
 
@@ -69,7 +71,10 @@ int script_run(const char* script_path, size_t script_path_len) {
         return 1;
     }
 
-    ast_printer_println(expr);
+    // ast_printer_println(expr);
+    struct clox_interpreter interpreter;
+    struct clox_value value = clox_interpreter_eval(&interpreter, expr);
+    clox_value_fprintln(stdout, value);
 
     // NOTE: ATM tokens lexemes use strview, so they depend on the input file buffer.
     //       The expr ast use str, so they dont depend on the input file buffer, but they use copies of tokens...
@@ -111,7 +116,10 @@ void repl_start(void) {
             continue;
         }
 
-        ast_printer_println(expr);
+        // ast_printer_println(expr);
+        struct clox_interpreter interpreter;
+        struct clox_value value = clox_interpreter_eval(&interpreter, expr);
+        clox_value_fprintln(stdout, value);
     }
     // TODO scanner_free
 }

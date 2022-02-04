@@ -240,6 +240,6 @@ static struct token previous(const struct parser* p) {
 }
 
 static bool end_of_input(const struct parser* p) {
-    // return peek(p).kind == TOKEN_KIND_EOF;
-    return p->current >= arrlen(p->tokens);
+    return peek(p).kind == TOKEN_KIND_EOF;
+    // return p->current >= arrlen(p->tokens);
 }
