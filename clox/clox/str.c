@@ -12,6 +12,14 @@ struct str str_empty(void) {
     };
 }
 
+void str_free(struct str str) {
+    if (str.ptr) {
+        free(str.ptr);
+        str.ptr = NULL;
+    }
+    str.cap = str.len = 0;
+}
+
 bool str_equals(struct str a, struct str b) {
     if (a.len != b.len) {
         return false;
