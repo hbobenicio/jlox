@@ -64,6 +64,8 @@ int script_run(const char* script_path, size_t script_path_len) {
     struct parser parser;
     parser_init(&parser, scanner.tokens);
 
+    // This AST depends on tokens from scanner. So scanner must outlive the AST.
+    // The callee (us) owns this ast then we must free it
     struct expr* expr = parser_parse(&parser);
     if (expr == NULL) {
         scanner_free(&scanner);
@@ -79,7 +81,8 @@ int script_run(const char* script_path, size_t script_path_len) {
     clox_value_fprintln(stdout, value);
 
     clox_interpreter_free(&interpreter);
-    parser_free
+    expr_free(expr);
+    scanner_free(&scanner);
 
     // NOTE: ATM tokens lexemes use strview, so they depend on the input file buffer.
     //       The expr ast use str, so they dont depend on the input file buffer, but they use copies of tokens...
