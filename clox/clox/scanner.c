@@ -192,6 +192,8 @@ static void scanner_scan_block_comment(struct scanner* s) {
 }
 
 static void scanner_scan_string(struct scanner* s) {
+    size_t starting_line = s->line;
+
     while (scanner_peek(s) != '"' && !scanner_eof(s)) {
         if (scanner_peek(s) == '\n') {
             s->line++;
@@ -199,7 +201,7 @@ static void scanner_scan_string(struct scanner* s) {
         scanner_advance(s);
     }
     if (scanner_eof(s)) {
-        fprintf(stderr, "error: unterminated string. expecting token '\"'\n");
+        fprintf(stderr, "error: line %zu: unterminated string. expecting token '\"'\n", starting_line);
         return;
     }
 
