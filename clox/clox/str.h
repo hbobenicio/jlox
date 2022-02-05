@@ -11,7 +11,10 @@ struct str {
 };
 
 struct str str_empty(void);
-void str_free(struct str str);
+bool str_is_empty(struct str);
+
+struct str str_dup(struct str str);
+void str_free(struct str* str);
 bool str_equals(struct str a, struct str b);
 struct str str_concat(struct str a, struct str b);
 

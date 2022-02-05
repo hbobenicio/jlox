@@ -71,10 +71,15 @@ int script_run(const char* script_path, size_t script_path_len) {
         return 1;
     }
 
-    // ast_printer_println(expr);
     struct clox_interpreter interpreter;
+    clox_interpreter_init(&interpreter);
+
+    // NOTE This value is borrowed from the interpreter internal state.
     struct clox_value value = clox_interpreter_eval(&interpreter, expr);
     clox_value_fprintln(stdout, value);
+
+    clox_interpreter_free(&interpreter);
+    parser_free
 
     // NOTE: ATM tokens lexemes use strview, so they depend on the input file buffer.
     //       The expr ast use str, so they dont depend on the input file buffer, but they use copies of tokens...
@@ -103,12 +108,9 @@ void repl_start(void) {
 
         const size_t line_len = strnlen(line, line_cap);
 
+        // Lexing. Tokens are stored inside the scanner
         scanner_scan_all_from_cstr(&scanner, line, line_len);
-        // for (long i = 0; i < arrlen(scanner.tokens); i++) {
-        //     token_fprint(stdout, &scanner.tokens[i]);
-        //     putchar(' ');
-        // }
-        // puts("");
+
         parser_init(&parser, scanner.tokens);
 
         struct expr* expr = parser_parse(&parser);
@@ -116,12 +118,17 @@ void repl_start(void) {
             continue;
         }
 
-        // ast_printer_println(expr);
         struct clox_interpreter interpreter;
+        clox_interpreter_init(&interpreter);
+
+        // NOTE This value is borrowed from the interpreter internal state.
         struct clox_value value = clox_interpreter_eval(&interpreter, expr);
         clox_value_fprintln(stdout, value);
 
+        clox_interpreter_free(&interpreter);
+
         expr_free(expr);
     }
-    // TODO scanner_free
+
+    scanner_free(&scanner);
 }

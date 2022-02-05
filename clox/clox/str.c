@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "commons.h"
+
 struct str str_empty(void) {
     return (struct str) {
         .ptr = NULL,
@@ -12,12 +14,36 @@ struct str str_empty(void) {
     };
 }
 
-void str_free(struct str str) {
-    if (str.ptr) {
-        free(str.ptr);
-        str.ptr = NULL;
+bool str_is_empty(struct str str) {
+    return str.ptr == NULL || str.len == 0 || str.cap == 0;
+}
+
+struct str str_dup(struct str str) {
+    if (str_is_empty(str)) {
+        return str_empty();
     }
-    str.cap = str.len = 0;
+
+    char* ptr = calloc(str.cap, sizeof(char));
+    if (ptr == NULL) {
+        CLOX_ERR_OOM_EPRINTLN();
+        exit(EXIT_FAILURE);
+    }
+
+    memcpy(ptr, str.ptr, str.len);
+
+    return (struct str) {
+        .cap = str.cap,
+        .len = str.len,
+        .ptr = ptr,
+    };
+}
+
+void str_free(struct str* str) {
+    if (str->ptr) {
+        free(str->ptr);
+        str->ptr = NULL;
+    }
+    str->cap = str->len = 0;
 }
 
 bool str_equals(struct str a, struct str b) {

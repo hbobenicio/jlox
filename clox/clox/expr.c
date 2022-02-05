@@ -219,7 +219,7 @@ static void expr_free_visit_grouping(struct expr* expr, void* userctx) {
 static void expr_free_visit_literal(struct expr* expr, void* userctx) {
     (void) userctx;
     if (expr->value.literal.kind == EXPR_LITERAL_KIND_STRING) {
-        str_free(expr->value.literal.value.string.val);
+        str_free(&expr->value.literal.value.string.val);
     }
     free(expr);
 }
