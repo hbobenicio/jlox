@@ -4,6 +4,7 @@
 /**/*.so
 /**/*.dll
 /**/a.out
+/**/.vscode
 main
 test-ast-printer
 test-ast-rpn-printer
