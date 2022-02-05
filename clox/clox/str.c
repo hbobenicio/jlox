@@ -24,10 +24,7 @@ struct str str_dup(struct str str) {
     }
 
     char* ptr = calloc(str.cap, sizeof(char));
-    if (ptr == NULL) {
-        CLOX_ERR_OOM_EPRINTLN();
-        exit(EXIT_FAILURE);
-    }
+    CLOX_ERR_PANIC_OOM_IF_NULL(ptr);
 
     memcpy(ptr, str.ptr, str.len);
 
@@ -60,10 +57,7 @@ struct str str_concat(struct str a, struct str b) {
     str.cap = str.len + 1; // '\0'
 
     str.ptr = calloc(str.cap, sizeof(char));
-    if (str.ptr == NULL) {
-        fprintf(stderr, "error: out of memory.\n");
-        return str_empty();
-    }
+    CLOX_ERR_PANIC_OOM_IF_NULL(str.ptr);
 
     memcpy(str.ptr, a.ptr, a.len);
     memcpy(str.ptr + a.len, b.ptr, b.len);

@@ -9,7 +9,7 @@ project(clox
 option(CLOX_DISABLE_CUSTOM_FLAGS "Disable the custom compile/link flags used by default" OFF)
 
 if(NOT ${CLOX_DISABLE_CUSTOM_FLAGS})
-    set(CMAKE_C_FLAGS_DEBUG   "${CMAKE_C_FLAGS_DEBUG}   -Wall -Wextra -Wpedantic -Werror=vla -O0 -ggdb -fsanitize=address,undefined -fno-omit-frame-pointer")
+    set(CMAKE_C_FLAGS_DEBUG   "${CMAKE_C_FLAGS_DEBUG}   -Wall -Wextra -Wpedantic -Werror=vla -O0 -g -rdynamic -fsanitize=address,undefined -fno-omit-frame-pointer")
     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Wall -Wextra -Wpedantic -Werror=vla -O3 -march=native")
 endif()
 

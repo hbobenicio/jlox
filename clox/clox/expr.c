@@ -5,6 +5,8 @@
 #include <stdbool.h>
 #include <assert.h>
 
+#include "commons.h"
+
 // Visitors for freeing expressions
 // (using this recursively slow approach until we get our Ast/Expr Allocator)
 static void expr_free_visit_binary(struct expr* expr, void* userctx);
@@ -21,10 +23,8 @@ static const struct expr_visitor expr_free_visitor = {
 
 struct expr* expr_binary_new(struct expr* left, struct token operator, struct expr* right) {
     struct expr* expr = malloc(sizeof(struct expr));
-    if (expr == NULL) {
-        fprintf(stderr, "error: out of memory.\n");
-        return expr;
-    }
+    CLOX_ERR_PANIC_OOM_IF_NULL(expr);
+
     expr->kind = EXPR_KIND_BINARY;
     expr->value.binary = (struct expr_binary) {
         .left = left,
@@ -36,10 +36,8 @@ struct expr* expr_binary_new(struct expr* left, struct token operator, struct ex
 
 struct expr* expr_unary_new(struct token operator, struct expr* right) {
     struct expr* expr = malloc(sizeof(struct expr));
-    if (expr == NULL) {
-        fprintf(stderr, "error: out of memory.\n");
-        return expr;
-    }
+    CLOX_ERR_PANIC_OOM_IF_NULL(expr);
+
     expr->kind = EXPR_KIND_UNARY;
     expr->value.unary = (struct expr_unary) {
         .operator = operator,
@@ -50,10 +48,8 @@ struct expr* expr_unary_new(struct token operator, struct expr* right) {
 
 struct expr* expr_literal_bool_new(bool val) {
     struct expr* expr = malloc(sizeof(struct expr));
-    if (expr == NULL) {
-        fprintf(stderr, "error: out of memory.\n");
-        return expr;
-    }
+    CLOX_ERR_PANIC_OOM_IF_NULL(expr);
+
     expr->kind = EXPR_KIND_LITERAL;
     expr->value.literal = (struct expr_literal) {
         .kind = EXPR_LITERAL_KIND_BOOL,
@@ -66,10 +62,8 @@ struct expr* expr_literal_bool_new(bool val) {
 
 struct expr* expr_literal_nil_new(void) {
     struct expr* expr = malloc(sizeof(struct expr));
-    if (expr == NULL) {
-        fprintf(stderr, "error: out of memory.\n");
-        return expr;
-    }
+    CLOX_ERR_PANIC_OOM_IF_NULL(expr);
+
     *expr = (struct expr) {
         .kind = EXPR_KIND_LITERAL,
         .value.literal = (struct expr_literal) {
@@ -82,20 +76,13 @@ struct expr* expr_literal_nil_new(void) {
 
 struct expr* expr_literal_string_new(struct strview sv) {
     struct expr* expr = malloc(sizeof(struct expr));
-    if (expr == NULL) {
-        fprintf(stderr, "error: out of memory.\n");
-        return expr;
-    }
+    CLOX_ERR_PANIC_OOM_IF_NULL(expr);
 
     size_t cstr_len = sv.len;
     size_t cstr_cap = sv.len + 1;
 
     char* cstr = calloc(cstr_cap, sizeof(char));
-    if (cstr == NULL) {
-        fprintf(stderr, "error: out of memory.\n");
-        free(expr);
-        return NULL;
-    }
+    CLOX_ERR_PANIC_OOM_IF_NULL(cstr);
 
     memcpy(cstr, sv.ptr, sv.len);
     
@@ -117,10 +104,8 @@ struct expr* expr_literal_string_new(struct strview sv) {
 
 struct expr* expr_literal_number_new(double val) {
     struct expr* expr = malloc(sizeof(struct expr));
-    if (expr == NULL) {
-        fprintf(stderr, "error: out of memory.\n");
-        return expr;
-    }
+    CLOX_ERR_PANIC_OOM_IF_NULL(expr);
+
     *expr = (struct expr) {
         .kind = EXPR_KIND_LITERAL,
         .value.literal = (struct expr_literal) {
@@ -135,10 +120,8 @@ struct expr* expr_literal_number_new(double val) {
 
 struct expr* expr_grouping_new(struct expr* expr) {
     struct expr* e = malloc(sizeof(struct expr));
-    if (e == NULL) {
-        fprintf(stderr, "error: out of memory.\n");
-        return e;
-    }
+    CLOX_ERR_PANIC_OOM_IF_NULL(e);
+
     *e = (struct expr) {
         .kind = EXPR_KIND_GROUPING,
         .value.grouping = (struct expr_grouping) {
