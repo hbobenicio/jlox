@@ -1,6 +1,7 @@
 #include "expr.h"
 
 #include <stdlib.h>
+#include <string.h>
 #include <stdbool.h>
 #include <assert.h>
 
@@ -85,14 +86,19 @@ struct expr* expr_literal_string_new(struct strview sv) {
         fprintf(stderr, "error: out of memory.\n");
         return expr;
     }
+
     size_t cstr_len = sv.len;
     size_t cstr_cap = sv.len + 1;
+
     char* cstr = calloc(cstr_cap, sizeof(char));
     if (cstr == NULL) {
         fprintf(stderr, "error: out of memory.\n");
         free(expr);
         return NULL;
     }
+
+    memcpy(cstr, sv.ptr, sv.len);
+    
     *expr = (struct expr) {
         .kind = EXPR_KIND_LITERAL,
         .value.literal = (struct expr_literal) {

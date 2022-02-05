@@ -207,6 +207,7 @@ static void scanner_scan_string(struct scanner* s) {
     scanner_advance(s);
 
     //TODO strview_slice
+    // This lexeme includes the quotes, like `"foo"`
     struct strview lexeme = {
         .ptr = s->input.ptr + s->start,
         .len = s->current - s->start,
@@ -215,8 +216,8 @@ static void scanner_scan_string(struct scanner* s) {
     // Trim the surrounding quotes.
     // If the lexeme is `"foo"`, this literal value must be just `foo`
     struct strview val = {
-        .ptr = s->input.ptr + s->start + 1, // skip the inicial "
-        .len = s->current - s->start - 1, // stop right after the ending "
+        .ptr = lexeme.ptr + 1, // skip the inicial quote
+        .len = lexeme.len - 2, // counting down both quotes
     };
 
     // addToken(STRING, literalValue);
