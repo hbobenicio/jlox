@@ -90,7 +90,7 @@ void repl_start(void) {
     char line[1024] = {0};
     const size_t line_cap = ARRAY_SIZE(line);
 
-    puts(CLOX_ANSI_BHMAG "=== Clox REPL - Press CTRL+C to exit ===" CLOX_ANSI_RESET);
+    puts(CLOX_ANSI_BHMAG "=== Clox REPL - Press CTRL+C or CTRL+D to exit ===" CLOX_ANSI_RESET);
     while (1) {
         memset(line, 0, line_cap);
 

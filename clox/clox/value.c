@@ -45,7 +45,7 @@ void clox_value_fprintln(FILE* file, struct clox_value value) {
         break;
 
     case CLOX_VALUE_KIND_STRING:
-        fprintf(file, "%s\n", value.as.string.ptr);
+        fprintf(file, "\"%s\"\n", value.as.string.ptr);
         break;
 
     default:
