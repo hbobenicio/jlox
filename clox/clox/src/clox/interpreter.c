@@ -4,26 +4,40 @@
 #include <assert.h>
 #include <math.h>
 
+#include "stb_ds.h"
 #include "expr.h"
+#include "ast/statement.h"
+#include "ast/statement-visitor.h"
+#include "ast/program.h"
 
-// Interpreters evaluation expression visitor implementation
-static void eval_visit_binary(struct expr* expr, void* userctx);
-static void eval_visit_grouping(struct expr* expr, void* userctx);
-static void eval_visit_literal(struct expr* expr, void* userctx);
-static void eval_visit_unary(struct expr* expr, void* userctx);
+// Interpreter's evaluation expression visitor implementation
+static void eval_visit_expr_binary(struct expr* expr, void* userctx);
+static void eval_visit_expr_grouping(struct expr* expr, void* userctx);
+static void eval_visit_expr_literal(struct expr* expr, void* userctx);
+static void eval_visit_expr_unary(struct expr* expr, void* userctx);
 
-// Auxiliar functions
+// Interpreter's exec statement visitor implementation
+static int exec_visit_statement_expr(struct clox_ast_statement* stmt, void* userctx);
+static int exec_visit_statement_print(struct clox_ast_statement* stmt, void* userctx);
+
+// Auxiliary functions
 static void interpreter_set_value(struct clox_interpreter* interpreter, struct clox_value val);
 static bool is_truthy(struct clox_value value);
 static bool is_equal(struct clox_value left, struct clox_value right);
 
-static const struct expr_visitor eval_visitor = {
-    .visit_binary = eval_visit_binary,
-    .visit_grouping = eval_visit_grouping,
-    .visit_literal = eval_visit_literal,
-    .visit_unary = eval_visit_unary,
+// Expr visitor vtable
+static const struct expr_visitor eval_expr_visitor = {
+    .visit_binary = eval_visit_expr_binary,
+    .visit_grouping = eval_visit_expr_grouping,
+    .visit_literal = eval_visit_expr_literal,
+    .visit_unary = eval_visit_expr_unary,
 };
 
+// Statement visitor vtable
+static const struct clox_ast_statement_visitor eval_statement_visitor = {
+    .visit_statement_expr = exec_visit_statement_expr,
+    .visit_statement_print = exec_visit_statement_print,
+};
 
 void clox_interpreter_init(struct clox_interpreter* interpreter) {
     interpreter->value = clox_value_nil();
@@ -35,11 +49,11 @@ void clox_interpreter_free(struct clox_interpreter* interpreter) {
 }
 
 struct clox_value clox_interpreter_eval(struct clox_interpreter* interpreter, struct expr* expr) {
-    expr_accept(expr, &eval_visitor, interpreter);
+    expr_accept(expr, &eval_expr_visitor, interpreter);
     return interpreter->value;
 }
 
-static void eval_visit_binary(struct expr* expr, void* userctx) {
+static void eval_visit_expr_binary(struct expr* expr, void* userctx) {
     struct clox_interpreter* interpreter = userctx;
     struct expr_binary* expr_bin = &expr->value.binary;
     
@@ -141,14 +155,14 @@ static void eval_visit_binary(struct expr* expr, void* userctx) {
     clox_value_free(&left);
 }
 
-static void eval_visit_grouping(struct expr* expr, void* userctx) {
+static void eval_visit_expr_grouping(struct expr* expr, void* userctx) {
     struct clox_interpreter* interpreter = userctx;
 
     struct clox_value val = clox_interpreter_eval(interpreter, expr->value.grouping.expr);
     interpreter_set_value(interpreter, val);
 }
 
-static void eval_visit_literal(struct expr* expr, void* userctx) {
+static void eval_visit_expr_literal(struct expr* expr, void* userctx) {
     struct clox_interpreter* interpreter = userctx;
     struct expr_literal* expr_lit = &expr->value.literal;
 
@@ -176,7 +190,7 @@ static void eval_visit_literal(struct expr* expr, void* userctx) {
     }
 }
 
-static void eval_visit_unary(struct expr* expr, void* userctx) {
+static void eval_visit_expr_unary(struct expr* expr, void* userctx) {
     struct clox_interpreter* interpreter = userctx;
     struct expr_unary* expr_un = &expr->value.unary;
 
@@ -200,6 +214,45 @@ static void eval_visit_unary(struct expr* expr, void* userctx) {
         assert(false && "unsupported unary operator. did you added a new unary operator recently?");
         break;
     }
+}
+
+int clox_interpreter_exec_statement(struct clox_interpreter* interpreter, struct clox_ast_statement* stmt) {
+    return clox_ast_statement_accept(stmt, &eval_statement_visitor, interpreter);
+}
+
+static int exec_visit_statement_expr(struct clox_ast_statement* stmt, void* userctx) {
+    struct clox_interpreter* interpreter = userctx;
+    struct clox_ast_statement_expr* expr_stmt = &stmt->as.expr_statement;
+
+    // How to handle errors here?
+    (void) clox_interpreter_eval(interpreter, expr_stmt->expr);
+    return 0;
+}
+
+static int exec_visit_statement_print(struct clox_ast_statement* stmt, void* userctx) {
+    struct clox_interpreter* interpreter = userctx;
+    struct clox_ast_statement_print* print_stmt = &stmt->as.print_statement;
+
+    // How to handle errors here?
+    //NOTE val is a borrow which is owned by the interpreter
+    struct clox_value val = clox_interpreter_eval(interpreter, print_stmt->expr);
+
+    // Executing the print action
+    clox_value_fprintln(stdout, val);
+
+    return 0;
+}
+
+int clox_interpreter_exec_program(struct clox_interpreter* interpreter, struct clox_ast_program* prog) {
+    for (long i = 0; i < arrlen(prog->statements); i++) {
+        int rc = clox_interpreter_exec_statement(interpreter, prog->statements[i]);
+        if (rc != 0) {
+            //TODO add line number to the statement and print it here
+            fprintf(stderr, "error: runtime error\n");
+            return rc;
+        }
+    }
+    return 0;
 }
 
 static void interpreter_set_value(struct clox_interpreter* interpreter, struct clox_value val) {

@@ -8,6 +8,8 @@
 #include "commons.h"
 #include "token.h"
 #include "expr.h"
+#include "ast/statement.h"
+#include "ast/program.h"
 
 static bool match(struct parser* p, enum token_kind token_kind);
 static bool check(const struct parser* p, enum token_kind token_kind);
@@ -23,14 +25,30 @@ void parser_init(struct parser* p, struct token* tokens) {
     p->current = 0;
 }
 
-struct expr* parser_parse(struct parser* p) {
-    struct expr* expr = parser_parse_expr(p);
-    if (expr == NULL) {
-        fputs("error: parsing failed.\n", stderr);
-        return NULL;
+// struct expr* parser_parse(struct parser* p) {
+//     struct expr* expr = parser_parse_expr(p);
+//     if (expr == NULL) {
+//         fputs("error: parsing failed.\n", stderr);
+//         return NULL;
+//     }
+//     return expr;
+// }
+struct clox_ast_program* parser_parse(struct parser* p) {
+    struct clox_ast_program* prog = clox_ast_program_new();
+
+    while (!end_of_input(p)) {
+        struct clox_ast_statement* stmt = parser_parse_statement(p);
+        if (stmt == NULL) {
+            fprintf(stderr, "error: line %zu: failed to parse statement\n", peek(p).line);
+            clox_ast_program_free(prog);
+            return NULL;
+        }
+        clox_ast_program_add_statement(prog, stmt);
     }
-    return expr;
+
+    return prog;
 }
+
 
 struct expr* parser_parse_expr(struct parser* p) {
     return parser_parse_expr_equality(p);
@@ -189,6 +207,33 @@ struct expr* parser_parse_expr_primary(struct parser* p) {
     struct token current_token = peek(p);
     fprintf(stderr, "error: line %zu: expecting a primary expression (a literal or an opening parentesis '('), got '%s'\n", current_token.line, token_to_cstr(&current_token));
     return NULL;
+}
+
+struct clox_ast_statement* parser_parse_statement(struct parser* p) {
+    if (match(p, TOKEN_KIND_PRINT)) {
+        return parser_parse_print_statement(p);
+    }
+    return parser_parse_expr_statement(p);
+}
+
+struct clox_ast_statement* parser_parse_print_statement(struct parser* p) {
+    struct expr* expr = parser_parse_expr(p);
+    if (expr == NULL) {
+        fprintf(stderr, "error: failed to parse expression from print statement\n");
+        return NULL;
+    }
+    consume(p, TOKEN_KIND_SEMICOLON, "error: expecting ';' after print expression operand");
+    return clox_ast_statement_new_print(expr);
+}
+
+struct clox_ast_statement* parser_parse_expr_statement(struct parser* p) {
+    struct expr* expr = parser_parse_expr(p);
+    if (expr == NULL) {
+        fprintf(stderr, "error: failed to parse expression statement\n");
+        return NULL;
+    }
+    consume(p, TOKEN_KIND_SEMICOLON, "error: expecting ';' after expression");
+    return clox_ast_statement_new_expr(expr);
 }
 
 static int consume(struct parser* p, enum token_kind token_kind, const char* msg) {

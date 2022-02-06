@@ -18,6 +18,7 @@
 #include <clox/ast-printer.h>
 #include <clox/interpreter.h>
 #include <clox/value.h>
+#include <clox/ast/program.h>
 
 #include "ansi.h"
 
@@ -54,7 +55,7 @@ int script_run(const char* script_path, size_t script_path_len) {
     
     struct str script_contents = {0};
     if (file_read_contents(script_path, &script_contents) != 0) {
-        fprintf(stderr, "error: failed to run script %s\n", script_path);
+        fprintf(stderr, "error: failed to read file contents: %s\n", script_path);
         return 1;
     }
 
@@ -66,8 +67,9 @@ int script_run(const char* script_path, size_t script_path_len) {
 
     // This AST depends on tokens from scanner. So scanner must outlive the AST.
     // The callee (us) owns this ast then we must free it
-    struct expr* expr = parser_parse(&parser);
-    if (expr == NULL) {
+    struct clox_ast_program* prog = parser_parse(&parser);
+    if (prog == NULL) {
+        fprintf(stderr, "error: failed to parse file '%s'\n", script_path);
         scanner_free(&scanner);
         munmap(script_contents.ptr, script_contents.len);
         return 1;
@@ -77,11 +79,18 @@ int script_run(const char* script_path, size_t script_path_len) {
     clox_interpreter_init(&interpreter);
 
     // NOTE This value is borrowed from the interpreter internal state.
-    struct clox_value value = clox_interpreter_eval(&interpreter, expr);
-    clox_value_fprintln(stdout, value);
+    // struct clox_value value = clox_interpreter_eval(&interpreter, expr);
+    // clox_value_fprintln(stdout, value);
+    if (clox_interpreter_exec_program(&interpreter, prog) != 0) {
+        fprintf(stderr, "error: runtime error\n");
+        clox_interpreter_free(&interpreter);
+        clox_ast_program_free(prog);
+        scanner_free(&scanner);
+        return 1;
+    }
 
     clox_interpreter_free(&interpreter);
-    expr_free(expr);
+    clox_ast_program_free(prog);
     scanner_free(&scanner);
 
     // NOTE: ATM tokens lexemes use strview, so they depend on the input file buffer.
@@ -116,8 +125,10 @@ void repl_start(void) {
 
         parser_init(&parser, scanner.tokens);
 
-        struct expr* expr = parser_parse(&parser);
-        if (expr == NULL) {
+        struct clox_ast_program* prog = parser_parse(&parser);
+        if (prog == NULL) {
+            fprintf(stderr, "error: parsing failed\n");
+            //NOTE we don't need to call scanner_free here, because a new scan already free's it
             continue;
         }
 
@@ -125,13 +136,15 @@ void repl_start(void) {
         clox_interpreter_init(&interpreter);
 
         // NOTE This value is borrowed from the interpreter internal state.
-        struct clox_value value = clox_interpreter_eval(&interpreter, expr);
-        clox_value_fprintln(stdout, value);
-
+        // struct clox_value value = clox_interpreter_eval(&interpreter, expr);
+        // clox_value_fprintln(stdout, value);
+        if (clox_interpreter_exec_program(&interpreter, prog) != 0) {
+            fprintf(stderr, "error: runtime error\n");
+            clox_interpreter_free(&interpreter);
+            clox_ast_program_free(prog);
+        }
         clox_interpreter_free(&interpreter);
-
-        expr_free(expr);
+        clox_ast_program_free(prog);
     }
-
     scanner_free(&scanner);
 }
