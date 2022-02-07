@@ -10,12 +10,12 @@
 int main() {
     // TODO can we improve this with an AST allocator?
     // TODO we can create some constructors to ease this construction, right? :)
-    struct expr one = expr_literal_number_create(1.0);
-    struct expr two = expr_literal_number_create(2.0);
-    struct expr three = expr_literal_number_create(3.0);
-    struct expr four = expr_literal_number_create(4.0);
-    struct expr left_expr = {
-        .kind = EXPR_KIND_BINARY,
+    struct clox_ast_expr one = expr_literal_number_create(1.0);
+    struct clox_ast_expr two = expr_literal_number_create(2.0);
+    struct clox_ast_expr three = expr_literal_number_create(3.0);
+    struct clox_ast_expr four = expr_literal_number_create(4.0);
+    struct clox_ast_expr left_expr = {
+        .kind = CLOX_AST_EXPR_KIND_BINARY,
         .value.binary = {
             .left = &one,
             .operator = {
@@ -30,8 +30,8 @@ int main() {
             .right = &two,
         },
     };
-    struct expr right_expr = {
-        .kind = EXPR_KIND_BINARY,
+    struct clox_ast_expr right_expr = {
+        .kind = CLOX_AST_EXPR_KIND_BINARY,
         .value.binary = {
             .left = &four,
             .operator = {
@@ -46,10 +46,10 @@ int main() {
             .right = &three,
         },
     };
-    struct expr group_left = expr_grouping_create(&left_expr);
-    struct expr group_right = expr_grouping_create(&right_expr);
-    struct expr expr = {
-        .kind = EXPR_KIND_BINARY,
+    struct clox_ast_expr group_left = expr_grouping_create(&left_expr);
+    struct clox_ast_expr group_right = expr_grouping_create(&right_expr);
+    struct clox_ast_expr expr = {
+        .kind = CLOX_AST_EXPR_KIND_BINARY,
         .value.binary = {
             .left = &group_left,
             .operator = {

@@ -10,11 +10,11 @@
 int main() {
     // TODO can we improve this with an AST allocator?
     // TODO we can create some constructors to ease this construction, right? :)
-    struct expr lit_45_67 = expr_literal_number_create(45.67);
-    struct expr lit_123 = expr_literal_number_create(123.0);
-    struct expr expr_left = {
-        .kind = EXPR_KIND_UNARY,
-        .value.unary = (struct expr_unary) {
+    struct clox_ast_expr lit_45_67 = expr_literal_number_create(45.67);
+    struct clox_ast_expr lit_123 = expr_literal_number_create(123.0);
+    struct clox_ast_expr expr_left = {
+        .kind = CLOX_AST_EXPR_KIND_UNARY,
+        .value.unary = (struct clox_ast_expr_unary) {
             .operator = (struct token) {
                 .kind = TOKEN_KIND_MINUS,
                 .line = 1,
@@ -27,10 +27,10 @@ int main() {
             .right = &lit_123,
         },
     };
-    struct expr expr_right = expr_grouping_create(&lit_45_67);
-    struct expr expr = {
-        .kind = EXPR_KIND_BINARY,
-        .value.binary = (struct expr_binary) {
+    struct clox_ast_expr expr_right = expr_grouping_create(&lit_45_67);
+    struct clox_ast_expr expr = {
+        .kind = CLOX_AST_EXPR_KIND_BINARY,
+        .value.binary = (struct clox_ast_expr_binary) {
             .left = &expr_left,
             .operator = (struct token) {
                 .kind = TOKEN_KIND_STAR,

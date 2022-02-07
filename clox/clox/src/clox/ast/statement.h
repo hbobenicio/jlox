@@ -1,7 +1,7 @@
 #ifndef CLOX_AST_STATEMENT_H
 #define CLOX_AST_STATEMENT_H
 
-struct expr;
+struct clox_ast_expr;
 
 enum clox_ast_statement_kind {
     /**
@@ -16,11 +16,11 @@ enum clox_ast_statement_kind {
 };
 
 struct clox_ast_statement_expr {
-    struct expr* expr;
+    struct clox_ast_expr* expr;
 };
 
 struct clox_ast_statement_print {
-    struct expr* expr;
+    struct clox_ast_expr* expr;
 };
 
 struct clox_ast_statement {
@@ -31,8 +31,8 @@ struct clox_ast_statement {
     } as;
 };
 
-struct clox_ast_statement* clox_ast_statement_new_expr(struct expr* expr);
-struct clox_ast_statement* clox_ast_statement_new_print(struct expr* expr);
+struct clox_ast_statement* clox_ast_statement_new_expr(struct clox_ast_expr* expr);
+struct clox_ast_statement* clox_ast_statement_new_print(struct clox_ast_expr* expr);
 
 void clox_ast_statement_free(struct clox_ast_statement* stmt);
 void clox_ast_statement_expr_free(struct clox_ast_statement_expr* expr_stmt);

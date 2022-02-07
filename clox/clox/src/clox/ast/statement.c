@@ -5,7 +5,7 @@
 #include <clox/commons.h>
 #include "expr.h"
 
-struct clox_ast_statement* clox_ast_statement_new_expr(struct expr* expr) {
+struct clox_ast_statement* clox_ast_statement_new_expr(struct clox_ast_expr* expr) {
     struct clox_ast_statement* stmt = malloc(sizeof(struct clox_ast_statement));
     CLOX_ERR_PANIC_OOM_IF_NULL(stmt);
 
@@ -19,7 +19,7 @@ struct clox_ast_statement* clox_ast_statement_new_expr(struct expr* expr) {
     return stmt;
 }
 
-struct clox_ast_statement* clox_ast_statement_new_print(struct expr* expr) {
+struct clox_ast_statement* clox_ast_statement_new_print(struct clox_ast_expr* expr) {
     struct clox_ast_statement* stmt = malloc(sizeof(struct clox_ast_statement));
     CLOX_ERR_PANIC_OOM_IF_NULL(stmt);
 

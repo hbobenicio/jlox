@@ -7,87 +7,87 @@
 #include <clox/strview.h>
 #include "tree-traversal-order.h"
 
-enum expr_literal_kind {
-    EXPR_LITERAL_KIND_NUMBER,
-    EXPR_LITERAL_KIND_STRING,
-    EXPR_LITERAL_KIND_BOOL,
-    EXPR_LITERAL_KIND_NIL,
+enum clox_ast_expr_literal_kind {
+    CLOX_AST_EXPR_LITERAL_KIND_NUMBER,
+    CLOX_AST_EXPR_LITERAL_KIND_STRING,
+    CLOX_AST_EXPR_LITERAL_KIND_BOOL,
+    CLOX_AST_EXPR_LITERAL_KIND_NIL,
 };
 
-struct expr_literal_number {
+struct clox_ast_expr_literal_number {
     double val;
 };
 
-struct expr_literal_string {
+struct clox_ast_expr_literal_string {
     // TODO this could be improved maybe... it's ok for now
     struct str val;
 };
 
-struct expr_literal_bool {
+struct clox_ast_expr_literal_bool {
     bool val;
 };
 
-enum expr_kind {
-    EXPR_KIND_BINARY,
-    EXPR_KIND_GROUPING,
-    EXPR_KIND_LITERAL,
-    EXPR_KIND_UNARY,
+enum clox_ast_expr_kind {
+    CLOX_AST_EXPR_KIND_BINARY,
+    CLOX_AST_EXPR_KIND_GROUPING,
+    CLOX_AST_EXPR_KIND_LITERAL,
+    CLOX_AST_EXPR_KIND_UNARY,
 };
 
-struct expr_binary {
-    struct expr* left;
+struct clox_ast_expr_binary {
+    struct clox_ast_expr* left;
     struct token operator;
-    struct expr* right;
+    struct clox_ast_expr* right;
 };
 
-struct expr_grouping {
-    struct expr* expr;
+struct clox_ast_expr_grouping {
+    struct clox_ast_expr* expr;
 };
 
-struct expr_literal {
-    enum expr_literal_kind kind;
+struct clox_ast_expr_literal {
+    enum clox_ast_expr_literal_kind kind;
     union {
-        struct expr_literal_number number;
-        struct expr_literal_string string;
-        struct expr_literal_bool boolean;
+        struct clox_ast_expr_literal_number number;
+        struct clox_ast_expr_literal_string string;
+        struct clox_ast_expr_literal_bool boolean;
     } value;
 };
 
-struct expr_unary {
+struct clox_ast_expr_unary {
     struct token operator;
-    struct expr* right;
+    struct clox_ast_expr* right;
 };
 
-struct expr {
-    enum expr_kind kind;
+struct clox_ast_expr {
+    enum clox_ast_expr_kind kind;
     union {
-        struct expr_binary binary;
-        struct expr_grouping grouping;
-        struct expr_literal literal;
-        struct expr_unary unary;
+        struct clox_ast_expr_binary binary;
+        struct clox_ast_expr_grouping grouping;
+        struct clox_ast_expr_literal literal;
+        struct clox_ast_expr_unary unary;
     } value;
 };
 
-struct expr* expr_binary_new(struct expr* left, struct token operator, struct expr* right);
-struct expr* expr_unary_new(struct token operator, struct expr* right);
-struct expr* expr_literal_bool_new(bool val);
-struct expr* expr_literal_nil_new(void);
-struct expr* expr_literal_string_new(struct strview sv);
-struct expr* expr_literal_number_new(double val);
-struct expr* expr_grouping_new(struct expr* expr);
-struct expr  expr_literal_number_create(double val);
-struct expr  expr_grouping_create(struct expr* expr);
+struct clox_ast_expr* expr_binary_new(struct clox_ast_expr* left, struct token operator, struct clox_ast_expr* right);
+struct clox_ast_expr* expr_unary_new(struct token operator, struct clox_ast_expr* right);
+struct clox_ast_expr* expr_literal_bool_new(bool val);
+struct clox_ast_expr* expr_literal_nil_new(void);
+struct clox_ast_expr* expr_literal_string_new(struct strview sv);
+struct clox_ast_expr* expr_literal_number_new(double val);
+struct clox_ast_expr* expr_grouping_new(struct clox_ast_expr* expr);
+struct clox_ast_expr  expr_literal_number_create(double val);
+struct clox_ast_expr  expr_grouping_create(struct clox_ast_expr* expr);
 
-void expr_free(struct expr* expr);
+void expr_free(struct clox_ast_expr* expr);
 
 //TODO improve this by replacing the void return type to int, for error handling
 struct expr_visitor {
-    void (*visit_binary)(struct expr* expr, void* userctx);
-    void (*visit_grouping)(struct expr* expr, void* userctx);
-    void (*visit_literal)(struct expr* expr, void* userctx);
-    void (*visit_unary)(struct expr* expr, void* userctx);
+    void (*visit_binary)(struct clox_ast_expr* expr, void* userctx);
+    void (*visit_grouping)(struct clox_ast_expr* expr, void* userctx);
+    void (*visit_literal)(struct clox_ast_expr* expr, void* userctx);
+    void (*visit_unary)(struct clox_ast_expr* expr, void* userctx);
 };
 
-void expr_accept(struct expr* expr, const struct expr_visitor* visitor, void* userctx);
+void expr_accept(struct clox_ast_expr* expr, const struct expr_visitor* visitor, void* userctx);
 
 #endif

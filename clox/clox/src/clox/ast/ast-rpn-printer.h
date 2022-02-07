@@ -3,9 +3,9 @@
 
 #include <stdio.h>
 
-struct expr;
+struct clox_ast_expr;
 
-void ast_rpn_printer_println(struct expr* expr);
-void ast_rpn_printer_fprintln(FILE* file, struct expr* expr);
+void ast_rpn_printer_println(struct clox_ast_expr* expr);
+void ast_rpn_printer_fprintln(FILE* file, struct clox_ast_expr* expr);
 
 #endif

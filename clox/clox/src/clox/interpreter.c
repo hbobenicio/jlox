@@ -11,10 +11,10 @@
 #include "ast/program.h"
 
 // Interpreter's evaluation expression visitor implementation
-static void eval_visit_expr_binary(struct expr* expr, void* userctx);
-static void eval_visit_expr_grouping(struct expr* expr, void* userctx);
-static void eval_visit_expr_literal(struct expr* expr, void* userctx);
-static void eval_visit_expr_unary(struct expr* expr, void* userctx);
+static void eval_visit_expr_binary(struct clox_ast_expr* expr, void* userctx);
+static void eval_visit_expr_grouping(struct clox_ast_expr* expr, void* userctx);
+static void eval_visit_expr_literal(struct clox_ast_expr* expr, void* userctx);
+static void eval_visit_expr_unary(struct clox_ast_expr* expr, void* userctx);
 
 // Interpreter's exec statement visitor implementation
 static int exec_visit_statement_expr(struct clox_ast_statement* stmt, void* userctx);
@@ -48,14 +48,14 @@ void clox_interpreter_free(struct clox_interpreter* interpreter) {
     interpreter_set_value(interpreter, clox_value_nil());
 }
 
-struct clox_value clox_interpreter_eval(struct clox_interpreter* interpreter, struct expr* expr) {
+struct clox_value clox_interpreter_eval(struct clox_interpreter* interpreter, struct clox_ast_expr* expr) {
     expr_accept(expr, &eval_expr_visitor, interpreter);
     return interpreter->value;
 }
 
-static void eval_visit_expr_binary(struct expr* expr, void* userctx) {
+static void eval_visit_expr_binary(struct clox_ast_expr* expr, void* userctx) {
     struct clox_interpreter* interpreter = userctx;
-    struct expr_binary* expr_bin = &expr->value.binary;
+    struct clox_ast_expr_binary* expr_bin = &expr->value.binary;
     
     //FIXME these could also fail. Improve error handling. Avoid evaluating right hand side?
     //FIXME we now own this value. we must free it after use
@@ -155,32 +155,32 @@ static void eval_visit_expr_binary(struct expr* expr, void* userctx) {
     clox_value_free(&left);
 }
 
-static void eval_visit_expr_grouping(struct expr* expr, void* userctx) {
+static void eval_visit_expr_grouping(struct clox_ast_expr* expr, void* userctx) {
     struct clox_interpreter* interpreter = userctx;
 
     struct clox_value val = clox_interpreter_eval(interpreter, expr->value.grouping.expr);
     interpreter_set_value(interpreter, val);
 }
 
-static void eval_visit_expr_literal(struct expr* expr, void* userctx) {
+static void eval_visit_expr_literal(struct clox_ast_expr* expr, void* userctx) {
     struct clox_interpreter* interpreter = userctx;
-    struct expr_literal* expr_lit = &expr->value.literal;
+    struct clox_ast_expr_literal* expr_lit = &expr->value.literal;
 
     switch (expr_lit->kind) {
-    case EXPR_LITERAL_KIND_NUMBER:
+    case CLOX_AST_EXPR_LITERAL_KIND_NUMBER:
         interpreter_set_value(interpreter, clox_value_number(expr_lit->value.number.val));
         break;
 
-    case EXPR_LITERAL_KIND_STRING:
+    case CLOX_AST_EXPR_LITERAL_KIND_STRING:
         //NOTE this allocates a new string
         interpreter_set_value(interpreter, clox_value_string_str_dup(expr_lit->value.string.val));
         break;
 
-    case EXPR_LITERAL_KIND_BOOL:
+    case CLOX_AST_EXPR_LITERAL_KIND_BOOL:
         interpreter_set_value(interpreter, clox_value_bool(expr_lit->value.boolean.val));
         break;
 
-    case EXPR_LITERAL_KIND_NIL:
+    case CLOX_AST_EXPR_LITERAL_KIND_NIL:
         interpreter_set_value(interpreter, clox_value_nil());
         break;
 
@@ -190,9 +190,9 @@ static void eval_visit_expr_literal(struct expr* expr, void* userctx) {
     }
 }
 
-static void eval_visit_expr_unary(struct expr* expr, void* userctx) {
+static void eval_visit_expr_unary(struct clox_ast_expr* expr, void* userctx) {
     struct clox_interpreter* interpreter = userctx;
-    struct expr_unary* expr_un = &expr->value.unary;
+    struct clox_ast_expr_unary* expr_un = &expr->value.unary;
 
     // NOTE if we must do something after interpreter_set_value, we must str_dup this if it's a string
     struct clox_value right = clox_interpreter_eval(interpreter, expr_un->right);

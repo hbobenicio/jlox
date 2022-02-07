@@ -50,13 +50,13 @@ struct clox_ast_program* parser_parse(struct parser* p) {
 }
 
 
-struct expr* parser_parse_expr(struct parser* p) {
+struct clox_ast_expr* parser_parse_expr(struct parser* p) {
     return parser_parse_expr_equality(p);
 }
 
 // equality -> comparison ( ("!=" | "==") comparison )* ;
-struct expr* parser_parse_expr_equality(struct parser* p) {
-    struct expr* expr = parser_parse_expr_comparison(p);
+struct clox_ast_expr* parser_parse_expr_equality(struct parser* p) {
+    struct clox_ast_expr* expr = parser_parse_expr_comparison(p);
     if (expr == NULL) {
         return NULL;
     }
@@ -64,7 +64,7 @@ struct expr* parser_parse_expr_equality(struct parser* p) {
     while (match(p, TOKEN_KIND_BANG_EQUAL) || match(p, TOKEN_KIND_EQUAL_EQUAL)) {
         struct token operator = previous(p);
 
-        struct expr* right = parser_parse_expr_comparison(p);
+        struct clox_ast_expr* right = parser_parse_expr_comparison(p);
         if (right == NULL) {
             //TODO free expr recursively
             char op[4] = {0};
@@ -80,8 +80,8 @@ struct expr* parser_parse_expr_equality(struct parser* p) {
 }
 
 // comparison -> term ( (">" | ">=" | "<" | "<=") term )* ;
-struct expr* parser_parse_expr_comparison(struct parser* p) {
-    struct expr* expr = parser_parse_expr_term(p);
+struct clox_ast_expr* parser_parse_expr_comparison(struct parser* p) {
+    struct clox_ast_expr* expr = parser_parse_expr_term(p);
     if (expr == NULL) {
         return NULL;
     }
@@ -89,7 +89,7 @@ struct expr* parser_parse_expr_comparison(struct parser* p) {
     while (match(p, TOKEN_KIND_GREATER) || match(p, TOKEN_KIND_GREATER_EQUAL) || match(p, TOKEN_KIND_LESS) || match(p, TOKEN_KIND_LESS_EQUAL)) {
         struct token operator = previous(p);
 
-        struct expr* right = parser_parse_expr_term(p);
+        struct clox_ast_expr* right = parser_parse_expr_term(p);
         if (right == NULL) {
             //TODO free expr recursively
             char op[4] = {0};
@@ -105,8 +105,8 @@ struct expr* parser_parse_expr_comparison(struct parser* p) {
 }
 
 // term -> factor ( ("-" | "+") factor )*
-struct expr* parser_parse_expr_term(struct parser* p) {
-    struct expr* expr = parser_parse_expr_factor(p);
+struct clox_ast_expr* parser_parse_expr_term(struct parser* p) {
+    struct clox_ast_expr* expr = parser_parse_expr_factor(p);
     if (expr == NULL) {
         return NULL;
     }
@@ -114,7 +114,7 @@ struct expr* parser_parse_expr_term(struct parser* p) {
     while (match(p, TOKEN_KIND_MINUS) || match(p, TOKEN_KIND_PLUS)) {
         struct token operator = previous(p);
 
-        struct expr* right = parser_parse_expr_factor(p);
+        struct clox_ast_expr* right = parser_parse_expr_factor(p);
         if (right == NULL) {
             //TODO free expr recursively
             char op[4] = {0};
@@ -130,8 +130,8 @@ struct expr* parser_parse_expr_term(struct parser* p) {
 }
 
 // factor -> unary ( ("/" | "*") unary )*
-struct expr* parser_parse_expr_factor(struct parser* p) {
-    struct expr* expr = parser_parse_expr_unary(p);
+struct clox_ast_expr* parser_parse_expr_factor(struct parser* p) {
+    struct clox_ast_expr* expr = parser_parse_expr_unary(p);
     if (expr == NULL) {
         return NULL;
     }
@@ -139,7 +139,7 @@ struct expr* parser_parse_expr_factor(struct parser* p) {
     while (match(p, TOKEN_KIND_SLASH) || match(p, TOKEN_KIND_STAR)) {
         struct token operator = previous(p);
 
-        struct expr* right = parser_parse_expr_unary(p);
+        struct clox_ast_expr* right = parser_parse_expr_unary(p);
         if (right == NULL) {
             //TODO free expr recursively
             char op[4] = {0};
@@ -155,11 +155,11 @@ struct expr* parser_parse_expr_factor(struct parser* p) {
 }
 
 // unary -> ("!" | "-") unary | primary
-struct expr* parser_parse_expr_unary(struct parser* p) {
+struct clox_ast_expr* parser_parse_expr_unary(struct parser* p) {
     if (match(p, TOKEN_KIND_BANG) || match(p, TOKEN_KIND_MINUS)) {
         struct token operator = previous(p);
 
-        struct expr* right = parser_parse_expr_unary(p);
+        struct clox_ast_expr* right = parser_parse_expr_unary(p);
         if (right == NULL) {
             //TODO free expr recursively
             char op[4] = {0};
@@ -175,7 +175,7 @@ struct expr* parser_parse_expr_unary(struct parser* p) {
 }
 
 // primary -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")"
-struct expr* parser_parse_expr_primary(struct parser* p) {
+struct clox_ast_expr* parser_parse_expr_primary(struct parser* p) {
     if (match(p, TOKEN_KIND_NUMBER)) {
         struct token token = previous(p);
         return expr_literal_number_new(token.value.number.val);
@@ -194,7 +194,7 @@ struct expr* parser_parse_expr_primary(struct parser* p) {
         return expr_literal_nil_new();
     }
     if (match(p, TOKEN_KIND_LEFT_PAREN)) {
-        struct expr* expr = parser_parse_expr(p);
+        struct clox_ast_expr* expr = parser_parse_expr(p);
         if (expr == NULL) {
             return NULL;
         }
@@ -217,7 +217,7 @@ struct clox_ast_statement* parser_parse_statement(struct parser* p) {
 }
 
 struct clox_ast_statement* parser_parse_print_statement(struct parser* p) {
-    struct expr* expr = parser_parse_expr(p);
+    struct clox_ast_expr* expr = parser_parse_expr(p);
     if (expr == NULL) {
         fprintf(stderr, "error: failed to parse expression from print statement\n");
         return NULL;
@@ -227,7 +227,7 @@ struct clox_ast_statement* parser_parse_print_statement(struct parser* p) {
 }
 
 struct clox_ast_statement* parser_parse_expr_statement(struct parser* p) {
-    struct expr* expr = parser_parse_expr(p);
+    struct clox_ast_expr* expr = parser_parse_expr(p);
     if (expr == NULL) {
         fprintf(stderr, "error: failed to parse expression statement\n");
         return NULL;

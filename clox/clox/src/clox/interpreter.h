@@ -3,7 +3,7 @@
 
 #include "value.h"
 
-struct expr;
+struct clox_ast_expr;
 struct clox_ast_statement;
 struct clox_ast_program;
 
@@ -30,7 +30,7 @@ void clox_interpreter_free(struct clox_interpreter* interpreter);
  * @param expr 
  * @return struct clox_value 
  */
-struct clox_value clox_interpreter_eval(struct clox_interpreter* interpreter, struct expr* expr);
+struct clox_value clox_interpreter_eval(struct clox_interpreter* interpreter, struct clox_ast_expr* expr);
 
 /**
  * @brief Executes the given AST statement.
