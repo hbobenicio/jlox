@@ -1,8 +1,10 @@
 #include "ast-rpn-printer.h"
 
-#include "expr.h"
 #include <stdbool.h>
 #include <assert.h>
+
+#include "expr.h"
+#include "expr-visitor.h"
 
 struct ast_rpn_printer {
     FILE* file;
@@ -13,7 +15,7 @@ static void ast_rpn_printer_visit_grouping(struct clox_ast_expr* expr, void* use
 static void ast_rpn_printer_visit_literal(struct clox_ast_expr* expr, void* userctx);
 static void ast_rpn_printer_visit_unary(struct clox_ast_expr* expr, void* userctx);
 
-static const struct expr_visitor ast_rpn_printer_expr_visitor = {
+static const struct clox_ast_expr_visitor ast_rpn_printer_expr_visitor = {
     .visit_binary = ast_rpn_printer_visit_binary,
     .visit_grouping = ast_rpn_printer_visit_grouping,
     .visit_literal = ast_rpn_printer_visit_literal,
@@ -29,7 +31,7 @@ void ast_rpn_printer_fprintln(FILE* file, struct clox_ast_expr* expr) {
         .file = file,
     };
 
-    expr_accept(expr, &ast_rpn_printer_expr_visitor, &ast_rpn_printer);
+    clox_ast_expr_accept(expr, &ast_rpn_printer_expr_visitor, &ast_rpn_printer);
 
     fputs("\n", file);
 }
@@ -38,10 +40,10 @@ static void ast_rpn_printer_visit_binary(struct clox_ast_expr* expr, void* userc
     struct ast_rpn_printer* ast_rpn_printer = userctx;
     struct clox_ast_expr_binary* expr_bin = &expr->value.binary;
 
-    expr_accept(expr_bin->left, &ast_rpn_printer_expr_visitor, userctx);
+    clox_ast_expr_accept(expr_bin->left, &ast_rpn_printer_expr_visitor, userctx);
     fprintf(ast_rpn_printer->file, " ");
 
-    expr_accept(expr_bin->right, &ast_rpn_printer_expr_visitor, userctx);
+    clox_ast_expr_accept(expr_bin->right, &ast_rpn_printer_expr_visitor, userctx);
     fprintf(ast_rpn_printer->file, " ");
 
     char op = expr_bin->operator.lexeme.ptr[0];
@@ -49,7 +51,7 @@ static void ast_rpn_printer_visit_binary(struct clox_ast_expr* expr, void* userc
 }
 
 static void ast_rpn_printer_visit_grouping(struct clox_ast_expr* expr, void* userctx) {
-    expr_accept(expr->value.grouping.expr, &ast_rpn_printer_expr_visitor, userctx);
+    clox_ast_expr_accept(expr->value.grouping.expr, &ast_rpn_printer_expr_visitor, userctx);
 }
 
 static void ast_rpn_printer_visit_literal(struct clox_ast_expr* expr, void* userctx) {
@@ -83,7 +85,7 @@ static void ast_rpn_printer_visit_unary(struct clox_ast_expr* expr, void* userct
     struct ast_rpn_printer* ast_rpn_printer = userctx;
     struct clox_ast_expr_unary* expr_un = &expr->value.unary;
     
-    expr_accept(expr_un->right, &ast_rpn_printer_expr_visitor, userctx);
+    clox_ast_expr_accept(expr_un->right, &ast_rpn_printer_expr_visitor, userctx);
 
     char op = expr_un->operator.lexeme.ptr[0];
     fprintf(ast_rpn_printer->file, " %c", op);

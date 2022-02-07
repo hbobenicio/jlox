@@ -33,6 +33,8 @@ add_library(clox
     "${PROJECT_SOURCE_DIR}/clox/src/clox/token.c"
     "${PROJECT_SOURCE_DIR}/clox/src/clox/scanner.c"
     "${PROJECT_SOURCE_DIR}/clox/src/clox/ast/expr.c"
+    "${PROJECT_SOURCE_DIR}/clox/src/clox/ast/expr-visitor.c"
+    "${PROJECT_SOURCE_DIR}/clox/src/clox/ast/expr-visitor-free.c"
     "${PROJECT_SOURCE_DIR}/clox/src/clox/ast/statement.c"
     "${PROJECT_SOURCE_DIR}/clox/src/clox/ast/statement-visitor.c"
     "${PROJECT_SOURCE_DIR}/clox/src/clox/ast/program.c"

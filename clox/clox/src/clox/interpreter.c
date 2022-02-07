@@ -6,6 +6,7 @@
 
 #include "stb_ds.h"
 #include "ast/expr.h"
+#include "ast/expr-visitor.h"
 #include "ast/statement.h"
 #include "ast/statement-visitor.h"
 #include "ast/program.h"
@@ -26,7 +27,7 @@ static bool is_truthy(struct clox_value value);
 static bool is_equal(struct clox_value left, struct clox_value right);
 
 // Expr visitor vtable
-static const struct expr_visitor eval_expr_visitor = {
+static const struct clox_ast_expr_visitor eval_expr_visitor = {
     .visit_binary = eval_visit_expr_binary,
     .visit_grouping = eval_visit_expr_grouping,
     .visit_literal = eval_visit_expr_literal,
@@ -49,7 +50,7 @@ void clox_interpreter_free(struct clox_interpreter* interpreter) {
 }
 
 struct clox_value clox_interpreter_eval(struct clox_interpreter* interpreter, struct clox_ast_expr* expr) {
-    expr_accept(expr, &eval_expr_visitor, interpreter);
+    clox_ast_expr_accept(expr, &eval_expr_visitor, interpreter);
     return interpreter->value;
 }
 

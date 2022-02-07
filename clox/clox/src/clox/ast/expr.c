@@ -6,22 +6,10 @@
 #include <assert.h>
 
 #include <clox/commons.h>
+#include "expr-visitor.h"
+#include "expr-visitor-free.h"
 
-// Visitors for freeing expressions
-// (using this recursively slow approach until we get our Ast/Expr Allocator)
-static void expr_free_visit_binary(struct clox_ast_expr* expr, void* userctx);
-static void expr_free_visit_grouping(struct clox_ast_expr* expr, void* userctx);
-static void expr_free_visit_literal(struct clox_ast_expr* expr, void* userctx);
-static void expr_free_visit_unary(struct clox_ast_expr* expr, void* userctx);
-
-static const struct expr_visitor expr_free_visitor = {
-    .visit_binary = expr_free_visit_binary,
-    .visit_grouping = expr_free_visit_grouping,
-    .visit_literal = expr_free_visit_literal,
-    .visit_unary = expr_free_visit_unary,
-};
-
-struct clox_ast_expr* expr_binary_new(struct clox_ast_expr* left, struct token operator, struct clox_ast_expr* right) {
+struct clox_ast_expr* clox_ast_expr_binary_new(struct clox_ast_expr* left, struct token operator, struct clox_ast_expr* right) {
     struct clox_ast_expr* expr = malloc(sizeof(struct clox_ast_expr));
     CLOX_ERR_PANIC_OOM_IF_NULL(expr);
 
@@ -34,7 +22,7 @@ struct clox_ast_expr* expr_binary_new(struct clox_ast_expr* left, struct token o
     return expr;
 }
 
-struct clox_ast_expr* expr_unary_new(struct token operator, struct clox_ast_expr* right) {
+struct clox_ast_expr* clox_ast_expr_unary_new(struct token operator, struct clox_ast_expr* right) {
     struct clox_ast_expr* expr = malloc(sizeof(struct clox_ast_expr));
     CLOX_ERR_PANIC_OOM_IF_NULL(expr);
 
@@ -46,7 +34,7 @@ struct clox_ast_expr* expr_unary_new(struct token operator, struct clox_ast_expr
     return expr;
 }
 
-struct clox_ast_expr* expr_literal_bool_new(bool val) {
+struct clox_ast_expr* clox_ast_expr_literal_bool_new(bool val) {
     struct clox_ast_expr* expr = malloc(sizeof(struct clox_ast_expr));
     CLOX_ERR_PANIC_OOM_IF_NULL(expr);
 
@@ -60,7 +48,7 @@ struct clox_ast_expr* expr_literal_bool_new(bool val) {
     return expr;
 }
 
-struct clox_ast_expr* expr_literal_nil_new(void) {
+struct clox_ast_expr* clox_ast_expr_literal_nil_new(void) {
     struct clox_ast_expr* expr = malloc(sizeof(struct clox_ast_expr));
     CLOX_ERR_PANIC_OOM_IF_NULL(expr);
 
@@ -74,7 +62,7 @@ struct clox_ast_expr* expr_literal_nil_new(void) {
     return expr;
 }
 
-struct clox_ast_expr* expr_literal_string_new(struct strview sv) {
+struct clox_ast_expr* clox_ast_expr_literal_string_new(struct strview sv) {
     struct clox_ast_expr* expr = malloc(sizeof(struct clox_ast_expr));
     CLOX_ERR_PANIC_OOM_IF_NULL(expr);
 
@@ -102,7 +90,7 @@ struct clox_ast_expr* expr_literal_string_new(struct strview sv) {
     return expr;
 }
 
-struct clox_ast_expr* expr_literal_number_new(double val) {
+struct clox_ast_expr* clox_ast_expr_literal_number_new(double val) {
     struct clox_ast_expr* expr = malloc(sizeof(struct clox_ast_expr));
     CLOX_ERR_PANIC_OOM_IF_NULL(expr);
 
@@ -118,7 +106,7 @@ struct clox_ast_expr* expr_literal_number_new(double val) {
     return expr;
 }
 
-struct clox_ast_expr* expr_grouping_new(struct clox_ast_expr* expr) {
+struct clox_ast_expr* clox_ast_expr_grouping_new(struct clox_ast_expr* expr) {
     struct clox_ast_expr* e = malloc(sizeof(struct clox_ast_expr));
     CLOX_ERR_PANIC_OOM_IF_NULL(e);
 
@@ -131,7 +119,7 @@ struct clox_ast_expr* expr_grouping_new(struct clox_ast_expr* expr) {
     return e;
 }
 
-struct clox_ast_expr expr_literal_number_create(double val) {
+struct clox_ast_expr clox_ast_expr_literal_number_create(double val) {
     return (struct clox_ast_expr) {
         .kind = CLOX_AST_EXPR_KIND_LITERAL,
         .value.literal = (struct clox_ast_expr_literal) {
@@ -143,7 +131,7 @@ struct clox_ast_expr expr_literal_number_create(double val) {
     };
 }
 
-struct clox_ast_expr expr_grouping_create(struct clox_ast_expr* expr) {
+struct clox_ast_expr clox_ast_expr_grouping_create(struct clox_ast_expr* expr) {
     return (struct clox_ast_expr) {
         .kind = CLOX_AST_EXPR_KIND_GROUPING,
         .value.grouping = (struct clox_ast_expr_grouping) {
@@ -152,63 +140,9 @@ struct clox_ast_expr expr_grouping_create(struct clox_ast_expr* expr) {
     };
 }
 
-void expr_accept(struct clox_ast_expr* expr, const struct expr_visitor* visitor, void* userctx) {
-    // Don't call other accepts inside an accept function. just visitors.
-    // let visitors call the accept back to this module, which improves traversal flexibility
-    switch (expr->kind) {
-    case CLOX_AST_EXPR_KIND_BINARY:
-        visitor->visit_binary(expr, userctx);
-        break;
-
-    case CLOX_AST_EXPR_KIND_GROUPING:
-        visitor->visit_grouping(expr, userctx);
-        break;
-
-    case CLOX_AST_EXPR_KIND_LITERAL:
-        visitor->visit_literal(expr, userctx);
-        break;
-
-    case CLOX_AST_EXPR_KIND_UNARY:
-        visitor->visit_unary(expr, userctx);
-        break;
-    
-    default:
-        assert(false && "unsupported clox_ast_expr_kind variant. did you add a new variant for it recently?");
-        break;
-    }
-}
-
 // This is implemented basically as a post-order visitor.
 // Maybe we eventually end up with multiple post-order implementations.
 // Could we abstract those implementations as one and offer an extension point useful enough? (func ptr?)
-void expr_free(struct clox_ast_expr* expr) {
-    expr_accept(expr, &expr_free_visitor, NULL);
-}
-
-// Memory free must be a Postorder traversal
-static void expr_free_visit_binary(struct clox_ast_expr* expr, void* userctx) {
-    (void) userctx;
-    expr_free(expr->value.binary.left);
-    expr_free(expr->value.binary.right);
-    free(expr);
-}
-
-static void expr_free_visit_grouping(struct clox_ast_expr* expr, void* userctx) {
-    (void) userctx;
-    expr_free(expr->value.grouping.expr);
-    free(expr);
-}
-
-static void expr_free_visit_literal(struct clox_ast_expr* expr, void* userctx) {
-    (void) userctx;
-    if (expr->value.literal.kind == CLOX_AST_EXPR_LITERAL_KIND_STRING) {
-        str_free(&expr->value.literal.value.string.val);
-    }
-    free(expr);
-}
-
-static void expr_free_visit_unary(struct clox_ast_expr* expr, void* userctx) {
-    (void) userctx;
-    expr_free(expr->value.unary.right);
-    free(expr);
+void clox_ast_expr_free(struct clox_ast_expr* expr) {
+    clox_ast_expr_accept(expr, clox_ast_expr_visitor_free(), NULL);
 }

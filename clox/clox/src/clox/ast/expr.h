@@ -68,26 +68,16 @@ struct clox_ast_expr {
     } value;
 };
 
-struct clox_ast_expr* expr_binary_new(struct clox_ast_expr* left, struct token operator, struct clox_ast_expr* right);
-struct clox_ast_expr* expr_unary_new(struct token operator, struct clox_ast_expr* right);
-struct clox_ast_expr* expr_literal_bool_new(bool val);
-struct clox_ast_expr* expr_literal_nil_new(void);
-struct clox_ast_expr* expr_literal_string_new(struct strview sv);
-struct clox_ast_expr* expr_literal_number_new(double val);
-struct clox_ast_expr* expr_grouping_new(struct clox_ast_expr* expr);
-struct clox_ast_expr  expr_literal_number_create(double val);
-struct clox_ast_expr  expr_grouping_create(struct clox_ast_expr* expr);
+struct clox_ast_expr* clox_ast_expr_binary_new(struct clox_ast_expr* left, struct token operator, struct clox_ast_expr* right);
+struct clox_ast_expr* clox_ast_expr_unary_new(struct token operator, struct clox_ast_expr* right);
+struct clox_ast_expr* clox_ast_expr_literal_bool_new(bool val);
+struct clox_ast_expr* clox_ast_expr_literal_nil_new(void);
+struct clox_ast_expr* clox_ast_expr_literal_string_new(struct strview sv);
+struct clox_ast_expr* clox_ast_expr_literal_number_new(double val);
+struct clox_ast_expr* clox_ast_expr_grouping_new(struct clox_ast_expr* expr);
+struct clox_ast_expr  clox_ast_expr_literal_number_create(double val);
+struct clox_ast_expr  clox_ast_expr_grouping_create(struct clox_ast_expr* expr);
 
-void expr_free(struct clox_ast_expr* expr);
-
-//TODO improve this by replacing the void return type to int, for error handling
-struct expr_visitor {
-    void (*visit_binary)(struct clox_ast_expr* expr, void* userctx);
-    void (*visit_grouping)(struct clox_ast_expr* expr, void* userctx);
-    void (*visit_literal)(struct clox_ast_expr* expr, void* userctx);
-    void (*visit_unary)(struct clox_ast_expr* expr, void* userctx);
-};
-
-void expr_accept(struct clox_ast_expr* expr, const struct expr_visitor* visitor, void* userctx);
+void clox_ast_expr_free(struct clox_ast_expr* expr);
 
 #endif

@@ -73,7 +73,7 @@ struct clox_ast_expr* parser_parse_expr_equality(struct parser* p) {
             return NULL;
         }
 
-        expr = expr_binary_new(expr, operator, right);
+        expr = clox_ast_expr_binary_new(expr, operator, right);
     }
 
     return expr;
@@ -98,7 +98,7 @@ struct clox_ast_expr* parser_parse_expr_comparison(struct parser* p) {
             return NULL;
         }
 
-        expr = expr_binary_new(expr, operator, right);
+        expr = clox_ast_expr_binary_new(expr, operator, right);
     }
 
     return expr;
@@ -123,7 +123,7 @@ struct clox_ast_expr* parser_parse_expr_term(struct parser* p) {
             return NULL;
         }
 
-        expr = expr_binary_new(expr, operator, right);
+        expr = clox_ast_expr_binary_new(expr, operator, right);
     }
 
     return expr;
@@ -148,7 +148,7 @@ struct clox_ast_expr* parser_parse_expr_factor(struct parser* p) {
             return NULL;
         }
 
-        expr = expr_binary_new(expr, operator, right);
+        expr = clox_ast_expr_binary_new(expr, operator, right);
     }
 
     return expr;
@@ -168,7 +168,7 @@ struct clox_ast_expr* parser_parse_expr_unary(struct parser* p) {
             return NULL;
         }
 
-        return expr_unary_new(operator, right);
+        return clox_ast_expr_unary_new(operator, right);
     }
 
     return parser_parse_expr_primary(p);
@@ -178,20 +178,20 @@ struct clox_ast_expr* parser_parse_expr_unary(struct parser* p) {
 struct clox_ast_expr* parser_parse_expr_primary(struct parser* p) {
     if (match(p, TOKEN_KIND_NUMBER)) {
         struct token token = previous(p);
-        return expr_literal_number_new(token.value.number.val);
+        return clox_ast_expr_literal_number_new(token.value.number.val);
     }
     if (match(p, TOKEN_KIND_STRING)) {
         struct token token = previous(p);
-        return expr_literal_string_new(token.value.string.val);
+        return clox_ast_expr_literal_string_new(token.value.string.val);
     }
     if (match(p, TOKEN_KIND_TRUE)) {
-        return expr_literal_bool_new(true);
+        return clox_ast_expr_literal_bool_new(true);
     }
     if (match(p, TOKEN_KIND_FALSE)) {
-        return expr_literal_bool_new(false);
+        return clox_ast_expr_literal_bool_new(false);
     }
     if (match(p, TOKEN_KIND_NIL)) {
-        return expr_literal_nil_new();
+        return clox_ast_expr_literal_nil_new();
     }
     if (match(p, TOKEN_KIND_LEFT_PAREN)) {
         struct clox_ast_expr* expr = parser_parse_expr(p);
@@ -202,7 +202,7 @@ struct clox_ast_expr* parser_parse_expr_primary(struct parser* p) {
             // TODO free expr recursively
             return NULL;
         }
-        return expr_grouping_new(expr);
+        return clox_ast_expr_grouping_new(expr);
     }
     struct token current_token = peek(p);
     fprintf(stderr, "error: line %zu: expecting a primary expression (a literal or an opening parentesis '('), got '%s'\n", current_token.line, token_to_cstr(&current_token));

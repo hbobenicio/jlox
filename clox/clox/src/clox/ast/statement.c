@@ -47,11 +47,11 @@ void clox_ast_statement_free(struct clox_ast_statement* stmt) {
 }
 
 void clox_ast_statement_expr_free(struct clox_ast_statement_expr* expr_stmt) {
-    expr_free(expr_stmt->expr);
+    clox_ast_expr_free(expr_stmt->expr);
     expr_stmt->expr = NULL;
 }
 
 void clox_ast_statement_print_free(struct clox_ast_statement_print* print_stmt) {
-    expr_free(print_stmt->expr);
+    clox_ast_expr_free(print_stmt->expr);
     print_stmt->expr = NULL;
 }

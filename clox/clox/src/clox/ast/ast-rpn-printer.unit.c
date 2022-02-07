@@ -10,10 +10,10 @@
 int main() {
     // TODO can we improve this with an AST allocator?
     // TODO we can create some constructors to ease this construction, right? :)
-    struct clox_ast_expr one = expr_literal_number_create(1.0);
-    struct clox_ast_expr two = expr_literal_number_create(2.0);
-    struct clox_ast_expr three = expr_literal_number_create(3.0);
-    struct clox_ast_expr four = expr_literal_number_create(4.0);
+    struct clox_ast_expr one = clox_ast_expr_literal_number_create(1.0);
+    struct clox_ast_expr two = clox_ast_expr_literal_number_create(2.0);
+    struct clox_ast_expr three = clox_ast_expr_literal_number_create(3.0);
+    struct clox_ast_expr four = clox_ast_expr_literal_number_create(4.0);
     struct clox_ast_expr left_expr = {
         .kind = CLOX_AST_EXPR_KIND_BINARY,
         .value.binary = {
@@ -46,8 +46,8 @@ int main() {
             .right = &three,
         },
     };
-    struct clox_ast_expr group_left = expr_grouping_create(&left_expr);
-    struct clox_ast_expr group_right = expr_grouping_create(&right_expr);
+    struct clox_ast_expr group_left = clox_ast_expr_grouping_create(&left_expr);
+    struct clox_ast_expr group_right = clox_ast_expr_grouping_create(&right_expr);
     struct clox_ast_expr expr = {
         .kind = CLOX_AST_EXPR_KIND_BINARY,
         .value.binary = {
