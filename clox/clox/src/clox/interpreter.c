@@ -5,7 +5,7 @@
 #include <math.h>
 
 #include "stb_ds.h"
-#include "expr.h"
+#include "ast/expr.h"
 #include "ast/statement.h"
 #include "ast/statement-visitor.h"
 #include "ast/program.h"

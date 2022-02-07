@@ -7,7 +7,7 @@
 
 #include "commons.h"
 #include "token.h"
-#include "expr.h"
+#include "ast/expr.h"
 #include "ast/statement.h"
 #include "ast/program.h"
 

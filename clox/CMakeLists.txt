@@ -32,12 +32,12 @@ add_library(clox
     "${PROJECT_SOURCE_DIR}/clox/src/clox/str.c"
     "${PROJECT_SOURCE_DIR}/clox/src/clox/token.c"
     "${PROJECT_SOURCE_DIR}/clox/src/clox/scanner.c"
-    "${PROJECT_SOURCE_DIR}/clox/src/clox/expr.c"
+    "${PROJECT_SOURCE_DIR}/clox/src/clox/ast/expr.c"
     "${PROJECT_SOURCE_DIR}/clox/src/clox/ast/statement.c"
     "${PROJECT_SOURCE_DIR}/clox/src/clox/ast/statement-visitor.c"
     "${PROJECT_SOURCE_DIR}/clox/src/clox/ast/program.c"
-    "${PROJECT_SOURCE_DIR}/clox/src/clox/ast-printer.c"
-    "${PROJECT_SOURCE_DIR}/clox/src/clox/ast-rpn-printer.c"
+    "${PROJECT_SOURCE_DIR}/clox/src/clox/ast/ast-printer.c"
+    "${PROJECT_SOURCE_DIR}/clox/src/clox/ast/ast-rpn-printer.c"
     "${PROJECT_SOURCE_DIR}/clox/src/clox/parser.c"
     "${PROJECT_SOURCE_DIR}/clox/src/clox/value.c"
     "${PROJECT_SOURCE_DIR}/clox/src/clox/interpreter.c"
@@ -75,12 +75,12 @@ target_link_libraries(clox-cli clox)
 
 include(CTest)
 
-add_executable(ast-printer.unit "${PROJECT_SOURCE_DIR}/clox/src/clox/ast-printer.unit.c")
+add_executable(ast-printer.unit "${PROJECT_SOURCE_DIR}/clox/src/clox/ast/ast-printer.unit.c")
 target_include_directories(ast-printer.unit PRIVATE "${PROJECT_SOURCE_DIR}/clox/src")
 target_link_libraries(ast-printer.unit clox)
 add_test(NAME ast-printer.unit COMMAND "${CMAKE_CURRENT_BINARY_DIR}/ast-printer.unit")
 
-add_executable(ast-rpn-printer.unit "${PROJECT_SOURCE_DIR}/clox/src/clox/ast-rpn-printer.unit.c")
+add_executable(ast-rpn-printer.unit "${PROJECT_SOURCE_DIR}/clox/src/clox/ast/ast-rpn-printer.unit.c")
 target_include_directories(ast-rpn-printer.unit PRIVATE "${PROJECT_SOURCE_DIR}/clox/src")
 target_link_libraries(ast-rpn-printer.unit clox)
 add_test(NAME ast-rpn-printer.unit COMMAND "${CMAKE_CURRENT_BINARY_DIR}/ast-rpn-printer.unit")

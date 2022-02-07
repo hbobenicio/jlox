@@ -2,9 +2,9 @@
 #define CLOX_EXPR_H
 
 #include <stdbool.h>
-#include "token.h"
-#include "str.h"
-#include "strview.h"
+#include <clox/token.h>
+#include <clox/str.h>
+#include <clox/strview.h>
 #include "tree-traversal-order.h"
 
 enum expr_literal_kind {

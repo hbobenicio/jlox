@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <assert.h>
 
-#include "commons.h"
+#include <clox/commons.h>
 
 // Visitors for freeing expressions
 // (using this recursively slow approach until we get our Ast/Expr Allocator)

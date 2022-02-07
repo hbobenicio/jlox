@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 #include <clox/commons.h>
-#include <clox/expr.h>
+#include "expr.h"
 
 struct clox_ast_statement* clox_ast_statement_new_expr(struct expr* expr) {
     struct clox_ast_statement* stmt = malloc(sizeof(struct clox_ast_statement));

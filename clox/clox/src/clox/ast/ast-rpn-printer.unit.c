@@ -4,8 +4,8 @@
 #include <clox/stb_ds.h>
 
 #include <clox/token.h>
-#include <clox/expr.h>
-#include <clox/ast-rpn-printer.h>
+#include "expr.h"
+#include "ast-rpn-printer.h"
 
 int main() {
     // TODO can we improve this with an AST allocator?

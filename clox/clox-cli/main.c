@@ -13,9 +13,9 @@
 #include <clox/commons.h>
 #include <clox/token.h>
 #include <clox/scanner.h>
-#include <clox/expr.h>
+#include <clox/ast/expr.h>
 #include <clox/parser.h>
-#include <clox/ast-printer.h>
+#include <clox/ast/ast-printer.h>
 #include <clox/interpreter.h>
 #include <clox/value.h>
 #include <clox/ast/program.h>
