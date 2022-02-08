@@ -15,7 +15,7 @@ struct clox_interpreter {
 };
 
 /**
- * @brief Initializes the Interpreter. It's initial evaluation value is set to nil
+ * @brief Initializes the Interpreter. Its initial evaluation value is set to nil
  * 
  * @param interpreter 
  */
@@ -27,7 +27,7 @@ void clox_interpreter_free(struct clox_interpreter* interpreter);
  * @brief Evaluates the given AST expression. The value is a borrow which is owned by the interpreter.
  * 
  * @param interpreter 
- * @param expr 
+ * @param expr The root expression where evaluation starts
  * @return struct clox_value 
  */
 struct clox_value clox_interpreter_eval(struct clox_interpreter* interpreter, struct clox_ast_expr* expr);
