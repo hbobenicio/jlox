@@ -23,6 +23,11 @@ struct strview strview_from_str(struct str str) {
     };
 }
 
+bool strview_is_empty(struct strview sv) {
+    // Should I compare ptr to ""?
+    return sv.len == 0;
+}
+
 void strview_print(struct strview sv) {
     strview_fprint(sv, stdin);
 }

@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include "str.h"
 
 struct strview {
@@ -16,5 +17,7 @@ struct strview strview_from_str(struct str str);
 
 void strview_print(struct strview sv);
 void strview_fprint(struct strview sv, FILE* file);
+
+bool strview_is_empty(struct strview sv);
 
 #endif

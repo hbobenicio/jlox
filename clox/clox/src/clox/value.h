@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdbool.h>
+
 #include "str.h"
 
 enum clox_value_kind {
@@ -26,7 +27,7 @@ struct clox_value clox_value_nil(void);
 struct clox_value clox_value_number(double val);
 
 /**
- * @brief Creates a new clox string value. The underlying str is duplicated, so it should be freed
+ * @brief Creates a new clox string value. The underlying str is allocated and duplicated, so it should be freed.
  * 
  * @param val 
  * @return struct clox_value 

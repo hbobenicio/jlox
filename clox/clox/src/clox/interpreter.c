@@ -65,13 +65,13 @@ static void eval_visit_expr_binary(struct clox_ast_expr* expr, void* userctx) {
     struct clox_ast_expr_binary* expr_bin = &expr->value.binary;
     
     //FIXME these could also fail. Improve error handling. Avoid evaluating right hand side?
-    //FIXME we now own this value. we must free it after use
+    //NOTE this is a borrowed value
     struct clox_value left = clox_interpreter_eval(interpreter, expr_bin->left);
     if (left.kind == CLOX_VALUE_KIND_STRING) {
         left.as.string = str_dup(left.as.string);
     }
 
-    //FIXME we now own this value. we must free it after use
+    //NOTE this is a borrowed value
     struct clox_value right = clox_interpreter_eval(interpreter, expr_bin->right);
     if (right.kind == CLOX_VALUE_KIND_STRING) {
         right.as.string = str_dup(right.as.string);
@@ -235,7 +235,12 @@ static void eval_visit_expr_var(struct clox_ast_expr* expr, void* userctx) {
         //TODO abort further execution (error handling)
     }
 
-    interpreter_set_value(interpreter, var_value);
+    if (var_value.kind == CLOX_VALUE_KIND_STRING) {
+        interpreter_set_value(interpreter, clox_value_string_str_dup(var_value.as.string));
+    } else {
+        interpreter_set_value(interpreter, var_value);
+    }
+    // interpreter->value = var_value;
 }
 
 int clox_interpreter_exec_statement(struct clox_interpreter* interpreter, struct clox_ast_statement* stmt) {
