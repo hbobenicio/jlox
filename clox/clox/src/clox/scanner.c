@@ -284,70 +284,29 @@ static void scanner_scan_identifier(struct scanner* s) {
 }
 
 static enum token_kind scanner_keyword_or_identifier(struct strview lexeme) {
-    //TODO this could be improved with a hashtable. stb already has one!
-    if (memcmp(lexeme.ptr, "and", MIN(lexeme.len, sizeof("min"))) == 0) {
-        return TOKEN_KIND_AND;
-    }
 
-    if (memcmp(lexeme.ptr, "class", MIN(lexeme.len, sizeof("class"))) == 0) {
-        return TOKEN_KIND_CLASS;
-    }
+    #define IS_KEYWORD(kw) \
+        (lexeme.len + 1 == sizeof(kw) && memcmp(lexeme.ptr, kw, lexeme.len) == 0)
 
-    if (memcmp(lexeme.ptr, "else", MIN(lexeme.len, sizeof("else"))) == 0) {
-        return TOKEN_KIND_ELSE;
-    }
+    //TODO this could be improved with a hashtable or a regex
+    if (IS_KEYWORD("and"))    return TOKEN_KIND_AND;
+    if (IS_KEYWORD("class"))  return TOKEN_KIND_CLASS;
+    if (IS_KEYWORD("else"))   return TOKEN_KIND_ELSE;
+    if (IS_KEYWORD("false"))  return TOKEN_KIND_FALSE;
+    if (IS_KEYWORD("for"))    return TOKEN_KIND_FOR;
+    if (IS_KEYWORD("fun"))    return TOKEN_KIND_FUN;
+    if (IS_KEYWORD("if"))     return TOKEN_KIND_IF;
+    if (IS_KEYWORD("nil"))    return TOKEN_KIND_NIL;
+    if (IS_KEYWORD("or"))     return TOKEN_KIND_OR;
+    if (IS_KEYWORD("print"))  return TOKEN_KIND_PRINT;
+    if (IS_KEYWORD("return")) return TOKEN_KIND_RETURN;
+    if (IS_KEYWORD("super"))  return TOKEN_KIND_SUPER;
+    if (IS_KEYWORD("this"))   return TOKEN_KIND_THIS;
+    if (IS_KEYWORD("true"))   return TOKEN_KIND_TRUE;
+    if (IS_KEYWORD("var"))    return TOKEN_KIND_VAR;
+    if (IS_KEYWORD("while"))  return TOKEN_KIND_WHILE;
 
-    if (memcmp(lexeme.ptr, "false", MIN(lexeme.len, sizeof("false"))) == 0) {
-        return TOKEN_KIND_FALSE;
-    }
-
-    if (memcmp(lexeme.ptr, "for", MIN(lexeme.len, sizeof("for"))) == 0) {
-        return TOKEN_KIND_FOR;
-    }
-
-    if (memcmp(lexeme.ptr, "fun", MIN(lexeme.len, sizeof("fun"))) == 0) {
-        return TOKEN_KIND_FUN;
-    }
-
-    if (memcmp(lexeme.ptr, "if", MIN(lexeme.len, sizeof("if"))) == 0) {
-        return TOKEN_KIND_IF;
-    }
-
-    if (memcmp(lexeme.ptr, "nil", MIN(lexeme.len, sizeof("nil"))) == 0) {
-        return TOKEN_KIND_NIL;
-    }
-
-    if (memcmp(lexeme.ptr, "or", MIN(lexeme.len, sizeof("or"))) == 0) {
-        return TOKEN_KIND_OR;
-    }
-
-    if (memcmp(lexeme.ptr, "print", MIN(lexeme.len, sizeof("print"))) == 0) {
-        return TOKEN_KIND_PRINT;
-    }
-
-    if (memcmp(lexeme.ptr, "return", MIN(lexeme.len, sizeof("return"))) == 0) {
-        return TOKEN_KIND_RETURN;
-    }
-
-    if (memcmp(lexeme.ptr, "super", MIN(lexeme.len, sizeof("super"))) == 0) {
-        return TOKEN_KIND_SUPER;
-    }
-
-    if (memcmp(lexeme.ptr, "this", MIN(lexeme.len, sizeof("this"))) == 0) {
-        return TOKEN_KIND_THIS;
-    }
-
-    if (memcmp(lexeme.ptr, "true", MIN(lexeme.len, sizeof("true"))) == 0) {
-        return TOKEN_KIND_TRUE;
-    }
-
-    if (memcmp(lexeme.ptr, "var", MIN(lexeme.len, sizeof("var"))) == 0) {
-        return TOKEN_KIND_VAR;
-    }
-
-    if (memcmp(lexeme.ptr, "while", MIN(lexeme.len, sizeof("while"))) == 0) {
-        return TOKEN_KIND_WHILE;
-    }
+    #undef IS_KEYWORD
 
     return TOKEN_KIND_IDENTIFIER;
 }

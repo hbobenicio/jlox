@@ -23,6 +23,14 @@ static bool end_of_input(const struct parser* p);
 void parser_init(struct parser* p, struct token* tokens) {
     p->tokens = tokens;
     p->current = 0;
+    
+#ifdef DEBUG_DUMP_TOKENS
+    for (long int i = 0; i < arrlen(tokens); i++) {
+        token_fprint(stderr, &tokens[i]);
+        fputs(" ", stderr);
+    }
+    fputs("\n", stderr);
+#endif
 }
 
 struct clox_ast_program* parser_parse(struct parser* p) {

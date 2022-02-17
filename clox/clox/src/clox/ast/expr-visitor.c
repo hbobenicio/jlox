@@ -11,35 +11,30 @@ void clox_ast_expr_accept(struct clox_ast_expr* expr, const struct clox_ast_expr
     case CLOX_AST_EXPR_KIND_BINARY:
         if (visitor->visit_binary) {
             visitor->visit_binary(expr, userctx);
-            return;
         }
         break;
 
     case CLOX_AST_EXPR_KIND_GROUPING:
         if (visitor->visit_grouping) {
             visitor->visit_grouping(expr, userctx);
-            return;
         }
         break;
 
     case CLOX_AST_EXPR_KIND_LITERAL:
         if (visitor->visit_literal) {
             visitor->visit_literal(expr, userctx);
-            return;
         }
         break;
 
     case CLOX_AST_EXPR_KIND_UNARY:
         if (visitor->visit_unary) {
             visitor->visit_unary(expr, userctx);
-            return;
         }
         break;
 
     case CLOX_AST_EXPR_KIND_VAR:
         if (visitor->visit_var) {
             visitor->visit_var(expr, userctx);
-            return;
         }
         break;
     }
