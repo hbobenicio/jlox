@@ -14,7 +14,7 @@
 static bool match(struct parser* p, enum token_kind token_kind);
 static bool check(const struct parser* p, enum token_kind token_kind);
 static int consume(struct parser* p, enum token_kind token_kind, const char* msg);
-// Precisa mesmo retornar um Token?
+
 static struct token advance(struct parser* p);
 static struct token peek(const struct parser* p);
 static struct token previous(const struct parser* p);
@@ -25,19 +25,12 @@ void parser_init(struct parser* p, struct token* tokens) {
     p->current = 0;
 }
 
-// struct expr* parser_parse(struct parser* p) {
-//     struct expr* expr = parser_parse_expr(p);
-//     if (expr == NULL) {
-//         fputs("error: parsing failed.\n", stderr);
-//         return NULL;
-//     }
-//     return expr;
-// }
 struct clox_ast_program* parser_parse(struct parser* p) {
     struct clox_ast_program* prog = clox_ast_program_new();
 
     while (!end_of_input(p)) {
-        struct clox_ast_statement* stmt = parser_parse_statement(p);
+        // struct clox_ast_statement* stmt = parser_parse_statement(p);
+        struct clox_ast_statement* stmt = parser_parse_declaration(p);
         if (stmt == NULL) {
             fprintf(stderr, "error: line %zu: failed to parse statement\n", peek(p).line);
             clox_ast_program_free(prog);
@@ -47,6 +40,14 @@ struct clox_ast_program* parser_parse(struct parser* p) {
     }
 
     return prog;
+}
+
+struct clox_ast_statement* parser_parse_declaration(struct parser* p) {
+    // TODO add error handling and error sincronization
+    if (match(p, TOKEN_KIND_VAR)) {
+        return parser_parse_var_declaration_statement(p);
+    }
+    return parser_parse_statement(p);
 }
 
 
@@ -204,6 +205,9 @@ struct clox_ast_expr* parser_parse_expr_primary(struct parser* p) {
         }
         return clox_ast_expr_grouping_new(expr);
     }
+    if (match(p, TOKEN_KIND_IDENTIFIER)) {
+        return clox_ast_expr_var_new(previous(p));
+    }
     struct token current_token = peek(p);
     fprintf(stderr, "error: line %zu: expecting a primary expression (a literal or an opening parentesis '('), got '%s'\n", current_token.line, token_to_cstr(&current_token));
     return NULL;
@@ -234,6 +238,19 @@ struct clox_ast_statement* parser_parse_expr_statement(struct parser* p) {
     }
     consume(p, TOKEN_KIND_SEMICOLON, "error: expecting ';' after expression");
     return clox_ast_statement_new_expr(expr);
+}
+
+struct clox_ast_statement* parser_parse_var_declaration_statement(struct parser* p) {
+    consume(p, TOKEN_KIND_IDENTIFIER, "error: expecting variable name");
+    struct token var_name = previous(p);
+
+    struct clox_ast_expr* initializer = NULL;
+    if (match(p, TOKEN_KIND_EQUAL)) {
+        initializer = parser_parse_expr(p);
+    }
+
+    consume(p, TOKEN_KIND_SEMICOLON, "error: expecting ';' after variable declaration");
+    return clox_ast_statement_new_var(var_name, initializer);
 }
 
 static int consume(struct parser* p, enum token_kind token_kind, const char* msg) {

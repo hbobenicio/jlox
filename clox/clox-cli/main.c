@@ -82,7 +82,7 @@ int script_run(const char* script_path, size_t script_path_len) {
     // struct clox_value value = clox_interpreter_eval(&interpreter, expr);
     // clox_value_fprintln(stdout, value);
     if (clox_interpreter_exec_program(&interpreter, prog) != 0) {
-        fprintf(stderr, "error: runtime error\n");
+        fprintf(stderr, "error: %s:%d: runtime error\n", __FILE__, __LINE__);
         clox_interpreter_free(&interpreter);
         clox_ast_program_free(prog);
         scanner_free(&scanner);
@@ -103,6 +103,9 @@ int script_run(const char* script_path, size_t script_path_len) {
 void repl_start(void) {
     struct scanner scanner = {0};
     struct parser parser;
+
+    struct clox_interpreter interpreter;
+    clox_interpreter_init(&interpreter);
 
     char line[1024] = {0};
     const size_t line_cap = ARRAY_SIZE(line);
@@ -132,19 +135,19 @@ void repl_start(void) {
             continue;
         }
 
-        struct clox_interpreter interpreter;
-        clox_interpreter_init(&interpreter);
-
         // NOTE This value is borrowed from the interpreter internal state.
         // struct clox_value value = clox_interpreter_eval(&interpreter, expr);
         // clox_value_fprintln(stdout, value);
         if (clox_interpreter_exec_program(&interpreter, prog) != 0) {
-            fprintf(stderr, "error: runtime error\n");
+            fprintf(stderr, "error: %s:%d: runtime error\n", __FILE__, __LINE__);
             clox_interpreter_free(&interpreter);
             clox_ast_program_free(prog);
+            continue;
         }
-        clox_interpreter_free(&interpreter);
+
         clox_ast_program_free(prog);
     }
+    
+    clox_interpreter_free(&interpreter);
     scanner_free(&scanner);
 }

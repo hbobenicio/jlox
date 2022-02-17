@@ -74,10 +74,6 @@ static void ast_rpn_printer_visit_literal(struct clox_ast_expr* expr, void* user
     case CLOX_AST_EXPR_LITERAL_KIND_NIL:
         fputs("nil", ast_rpn_printer->file);
         break;
-
-    default:
-        assert(false && "unsupported expr_lit variant kind. did you added a new variant to it recently?");
-        break;
     }
 }
 

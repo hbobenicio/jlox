@@ -34,6 +34,20 @@ struct clox_ast_expr* clox_ast_expr_unary_new(struct token operator, struct clox
     return expr;
 }
 
+struct clox_ast_expr* clox_ast_expr_var_new(struct token name) {
+    struct clox_ast_expr* expr = malloc(sizeof(struct clox_ast_expr));
+    CLOX_ERR_PANIC_OOM_IF_NULL(expr);
+
+    *expr = (struct clox_ast_expr) {
+        .kind = CLOX_AST_EXPR_KIND_VAR,
+        .value.var = (struct clox_ast_expr_var) {
+            .name = name,
+        },
+    };
+    return expr;
+}
+
+
 struct clox_ast_expr* clox_ast_expr_literal_bool_new(bool val) {
     struct clox_ast_expr* expr = malloc(sizeof(struct clox_ast_expr));
     CLOX_ERR_PANIC_OOM_IF_NULL(expr);

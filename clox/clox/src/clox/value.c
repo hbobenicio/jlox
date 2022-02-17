@@ -62,9 +62,5 @@ void clox_value_fprintln(FILE* file, struct clox_value value) {
         //FIXME this is spefic to the repl mode. this doesn't make sense for scripting mode
         fprintf(file, "\"%s\"\n", value.as.string.ptr);
         break;
-
-    default:
-        assert(false && "unsupported value kind. did you add a new value kind recently?");
-        break;
     }
 }

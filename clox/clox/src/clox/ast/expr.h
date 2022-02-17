@@ -32,6 +32,7 @@ enum clox_ast_expr_kind {
     CLOX_AST_EXPR_KIND_GROUPING,
     CLOX_AST_EXPR_KIND_LITERAL,
     CLOX_AST_EXPR_KIND_UNARY,
+    CLOX_AST_EXPR_KIND_VAR,
 };
 
 struct clox_ast_expr_binary {
@@ -58,6 +59,10 @@ struct clox_ast_expr_unary {
     struct clox_ast_expr* right;
 };
 
+struct clox_ast_expr_var {
+    struct token name;
+};
+
 struct clox_ast_expr {
     enum clox_ast_expr_kind kind;
     union {
@@ -65,11 +70,13 @@ struct clox_ast_expr {
         struct clox_ast_expr_grouping grouping;
         struct clox_ast_expr_literal literal;
         struct clox_ast_expr_unary unary;
+        struct clox_ast_expr_var var;
     } value;
 };
 
 struct clox_ast_expr* clox_ast_expr_binary_new(struct clox_ast_expr* left, struct token operator, struct clox_ast_expr* right);
 struct clox_ast_expr* clox_ast_expr_unary_new(struct token operator, struct clox_ast_expr* right);
+struct clox_ast_expr* clox_ast_expr_var_new(struct token name);
 struct clox_ast_expr* clox_ast_expr_literal_bool_new(bool val);
 struct clox_ast_expr* clox_ast_expr_literal_nil_new(void);
 struct clox_ast_expr* clox_ast_expr_literal_string_new(struct strview sv);

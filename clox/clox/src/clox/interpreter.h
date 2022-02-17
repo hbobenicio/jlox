@@ -2,6 +2,7 @@
 #define CLOX_INTERPRETER_H
 
 #include "value.h"
+#include "env.h"
 
 struct clox_ast_expr;
 struct clox_ast_statement;
@@ -12,6 +13,12 @@ struct clox_interpreter {
      * @brief evaluation resulting value
      */
     struct clox_value value;
+    
+    /**
+     * @brief Environment state where global variables are stored
+     * 
+     */
+    struct clox_env env;
 };
 
 /**

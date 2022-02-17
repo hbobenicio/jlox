@@ -71,9 +71,6 @@ const char* token_kind_to_cstr(enum token_kind kind) {
     case TOKEN_KIND_TRUE: return "TOKEN_KIND_TRUE";
     case TOKEN_KIND_VAR: return "TOKEN_KIND_VAR";
     case TOKEN_KIND_WHILE: return "TOKEN_KIND_WHILE";
-    default:
-        assert(0 && "unhandled token kind. did you included a new one recently?");
-        return NULL;
     }
 }
 

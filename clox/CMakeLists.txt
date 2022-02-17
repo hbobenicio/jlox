@@ -10,8 +10,9 @@ option(CLOX_DISABLE_CUSTOM_FLAGS "Disable the custom compile/link flags used by 
 
 if(NOT ${CLOX_DISABLE_CUSTOM_FLAGS})
     # -rdynamic
-    set(CMAKE_C_FLAGS_DEBUG   "${CMAKE_C_FLAGS_DEBUG}   -Wall -Wextra -Wpedantic -Werror=vla -O0 -g -fsanitize=address,undefined -fno-omit-frame-pointer")
-    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Wall -Wextra -Wpedantic -Werror=vla -O3 -march=native")
+    set(CMAKE_C_FLAGS_DEBUG   "${CMAKE_C_FLAGS_DEBUG}   -Wall -Wextra -Wpedantic -Werror=vla -std=c11 -O0 -g -fsanitize=address,undefined -fno-omit-frame-pointer")
+    # set(CMAKE_C_FLAGS_DEBUG   "${CMAKE_C_FLAGS_DEBUG}   -Wall -Wextra -Wpedantic -Werror=vla -std=c11 -O0 -g")
+    set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Wall -Wextra -Wpedantic -Werror=vla -std=c11 -O3 -march=native")
 endif()
 
 ###############
@@ -42,6 +43,7 @@ add_library(clox
     "${PROJECT_SOURCE_DIR}/clox/src/clox/ast/ast-rpn-printer.c"
     "${PROJECT_SOURCE_DIR}/clox/src/clox/parser.c"
     "${PROJECT_SOURCE_DIR}/clox/src/clox/value.c"
+    "${PROJECT_SOURCE_DIR}/clox/src/clox/env.c"
     "${PROJECT_SOURCE_DIR}/clox/src/clox/interpreter.c"
 )
 

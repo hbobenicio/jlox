@@ -16,10 +16,12 @@ static void eval_visit_expr_binary(struct clox_ast_expr* expr, void* userctx);
 static void eval_visit_expr_grouping(struct clox_ast_expr* expr, void* userctx);
 static void eval_visit_expr_literal(struct clox_ast_expr* expr, void* userctx);
 static void eval_visit_expr_unary(struct clox_ast_expr* expr, void* userctx);
+static void eval_visit_expr_var(struct clox_ast_expr* expr, void* userctx);
 
 // Interpreter's exec statement visitor implementation
 static int exec_visit_statement_expr(struct clox_ast_statement* stmt, void* userctx);
 static int exec_visit_statement_print(struct clox_ast_statement* stmt, void* userctx);
+static int exec_visit_statement_var(struct clox_ast_statement* stmt, void* userctx);
 
 // Auxiliary functions
 static void interpreter_set_value(struct clox_interpreter* interpreter, struct clox_value val);
@@ -32,19 +34,23 @@ static const struct clox_ast_expr_visitor eval_expr_visitor = {
     .visit_grouping = eval_visit_expr_grouping,
     .visit_literal = eval_visit_expr_literal,
     .visit_unary = eval_visit_expr_unary,
+    .visit_var = eval_visit_expr_var,
 };
 
 // Statement visitor vtable
 static const struct clox_ast_statement_visitor eval_statement_visitor = {
     .visit_statement_expr = exec_visit_statement_expr,
     .visit_statement_print = exec_visit_statement_print,
+    .visit_statement_var = exec_visit_statement_var,
 };
 
 void clox_interpreter_init(struct clox_interpreter* interpreter) {
     interpreter->value = clox_value_nil();
+    clox_env_init(&interpreter->env);
 }
 
 void clox_interpreter_free(struct clox_interpreter* interpreter) {
+    clox_env_free(&interpreter->env);
     // this will free the value if it's a str
     interpreter_set_value(interpreter, clox_value_nil());
 }
@@ -148,8 +154,10 @@ static void eval_visit_expr_binary(struct clox_ast_expr* expr, void* userctx) {
         break;
 
     default:
-        assert(false && "unsupported binary operator. did you add a new binary operator recently?");
-        break;
+        fputs("error: unknown binary operator: ", stderr);
+        token_fprint(stderr, &expr_bin->operator);
+        fputs("\n", stderr);
+        assert(false && "unknown binary operator");
     }
 
     clox_value_free(&right);
@@ -184,10 +192,6 @@ static void eval_visit_expr_literal(struct clox_ast_expr* expr, void* userctx) {
     case CLOX_AST_EXPR_LITERAL_KIND_NIL:
         interpreter_set_value(interpreter, clox_value_nil());
         break;
-
-    default:
-        assert(false && "unsupported expr_lit variant kind. did you add a new variant to it recently?");
-        break;
     }
 }
 
@@ -210,11 +214,25 @@ static void eval_visit_expr_unary(struct clox_ast_expr* expr, void* userctx) {
         assert(right.kind == CLOX_VALUE_KIND_NUMBER);
         interpreter_set_value(interpreter, clox_value_number(-right.as.number));
         break;
-    
+
     default:
-        assert(false && "unsupported unary operator. did you added a new unary operator recently?");
-        break;
+        fputs("error: unknown unary operator: ", stderr);
+        token_fprint(stderr, &expr_un->operator);
+        fputs("\n", stderr);
+        assert(false && "unknown binary operator");
     }
+}
+
+static void eval_visit_expr_var(struct clox_ast_expr* expr, void* userctx) {
+    struct clox_interpreter* interpreter = userctx;
+    struct clox_ast_expr_var* expr_var = &expr->value.var;
+
+    struct strview var_name = expr_var->name.lexeme;
+    struct clox_value var_value;
+
+    clox_env_get(&interpreter->env, var_name, &var_value);
+    
+    interpreter_set_value(interpreter, var_value);
 }
 
 int clox_interpreter_exec_statement(struct clox_interpreter* interpreter, struct clox_ast_statement* stmt) {
@@ -244,12 +262,28 @@ static int exec_visit_statement_print(struct clox_ast_statement* stmt, void* use
     return 0;
 }
 
+static int exec_visit_statement_var(struct clox_ast_statement* stmt, void* userctx) {
+    struct clox_interpreter* interpreter = userctx;
+    struct clox_ast_statement_var* var_stmt = &stmt->as.var_statement;
+
+    struct clox_value var_value = clox_value_nil();
+    if (var_stmt->initializer) {
+        var_value = clox_interpreter_eval(interpreter, var_stmt->initializer);
+    }
+
+    struct strview var_name = var_stmt->name.lexeme;
+
+    clox_env_define(&interpreter->env, var_name, var_value);
+
+    return 0;
+}
+
 int clox_interpreter_exec_program(struct clox_interpreter* interpreter, struct clox_ast_program* prog) {
     for (long i = 0; i < arrlen(prog->statements); i++) {
         int rc = clox_interpreter_exec_statement(interpreter, prog->statements[i]);
         if (rc != 0) {
             //TODO add line number to the statement and print it here
-            fprintf(stderr, "error: runtime error\n");
+            fprintf(stderr, "error: %s:%d: runtime error\n", __FILE__, __LINE__);
             return rc;
         }
     }
@@ -295,9 +329,6 @@ static bool is_equal(struct clox_value left, struct clox_value right) {
 
     case CLOX_VALUE_KIND_STRING:
         return str_equals(left.as.string, right.as.string);
-
-    default:
-        assert(false && "unsupported value kind. did you add a new value kind recently?");
     }
 
     return false;

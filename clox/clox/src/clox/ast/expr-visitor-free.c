@@ -9,6 +9,7 @@ static void visit_binary(struct clox_ast_expr* expr, void* userctx);
 static void visit_grouping(struct clox_ast_expr* expr, void* userctx);
 static void visit_literal(struct clox_ast_expr* expr, void* userctx);
 static void visit_unary(struct clox_ast_expr* expr, void* userctx);
+static void visit_var(struct clox_ast_expr* expr, void* userctx);
 
 const struct clox_ast_expr_visitor* clox_ast_expr_visitor_free(void) {
     static const struct clox_ast_expr_visitor vtable = {
@@ -16,6 +17,7 @@ const struct clox_ast_expr_visitor* clox_ast_expr_visitor_free(void) {
         .visit_grouping = visit_grouping,
         .visit_literal = visit_literal,
         .visit_unary = visit_unary,
+        .visit_var = visit_var,
     };
     return &vtable;
 }
@@ -45,5 +47,10 @@ static void visit_literal(struct clox_ast_expr* expr, void* userctx) {
 static void visit_unary(struct clox_ast_expr* expr, void* userctx) {
     (void) userctx;
     clox_ast_expr_free(expr->value.unary.right);
+    free(expr);
+}
+
+static void visit_var(struct clox_ast_expr* expr, void* userctx) {
+    (void) userctx;
     free(expr);
 }
