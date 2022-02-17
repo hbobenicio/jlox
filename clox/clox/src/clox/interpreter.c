@@ -230,8 +230,11 @@ static void eval_visit_expr_var(struct clox_ast_expr* expr, void* userctx) {
     struct strview var_name = expr_var->name.lexeme;
     struct clox_value var_value;
 
-    clox_env_get(&interpreter->env, var_name, &var_value);
-    
+    if (clox_env_get(&interpreter->env, var_name, &var_value) != 0) {
+        fprintf(stderr, "error: runtime error\n");
+        //TODO abort further execution (error handling)
+    }
+
     interpreter_set_value(interpreter, var_value);
 }
 

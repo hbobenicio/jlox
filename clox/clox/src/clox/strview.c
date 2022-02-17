@@ -1,5 +1,7 @@
 #include "strview.h"
 
+#include <assert.h>
+
 struct strview strview_empty() {
     return (struct strview) {
         .ptr = "",
@@ -19,4 +21,12 @@ struct strview strview_from_str(struct str str) {
         .ptr = str.ptr,
         .len = str.len,
     };
+}
+
+void strview_print(struct strview sv) {
+    strview_fprint(sv, stdin);
+}
+
+void strview_fprint(struct strview sv, FILE* file) {
+    assert(fwrite(sv.ptr, sizeof(char), sv.len, file) == sv.len);
 }
