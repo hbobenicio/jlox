@@ -45,6 +45,8 @@ add_library(clox
     "${PROJECT_SOURCE_DIR}/clox/src/clox/value.c"
     "${PROJECT_SOURCE_DIR}/clox/src/clox/env.c"
     "${PROJECT_SOURCE_DIR}/clox/src/clox/interpreter.c"
+    "${PROJECT_SOURCE_DIR}/clox/src/clox/interpreter-expr-visitor-eval.c"
+    "${PROJECT_SOURCE_DIR}/clox/src/clox/interpreter-statement-visitor-exec.c"
 )
 
 # The value 17 from this property required cmake 3.21 version

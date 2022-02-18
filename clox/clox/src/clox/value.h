@@ -46,4 +46,7 @@ void clox_value_free(struct clox_value* val);
 
 void clox_value_fprintln(FILE* file, struct clox_value value);
 
+bool clox_value_is_truthy(struct clox_value value);
+bool clox_value_is_equal(struct clox_value left, struct clox_value right);
+
 #endif

@@ -1,6 +1,7 @@
 #include "value.h"
 
 #include <assert.h>
+#include <math.h>
 
 struct clox_value clox_value_bool(bool val) {
     return (struct clox_value) {
@@ -63,4 +64,41 @@ void clox_value_fprintln(FILE* file, struct clox_value value) {
         fprintf(file, "\"%s\"\n", value.as.string.ptr);
         break;
     }
+}
+
+bool clox_value_is_truthy(struct clox_value value) {
+    switch (value.kind) {
+    case CLOX_VALUE_KIND_NIL:
+        return false;
+        
+    case CLOX_VALUE_KIND_BOOL:
+        return value.as.boolean;
+
+    default:
+        return true;
+    }
+}
+
+bool clox_value_is_equal(struct clox_value left, struct clox_value right) {
+    if (left.kind != right.kind) {
+        return false;
+    }
+
+    switch (left.kind) {
+    case CLOX_VALUE_KIND_BOOL:
+        return left.as.boolean == right.as.boolean;
+        
+    case CLOX_VALUE_KIND_NIL:
+        return true;
+
+    case CLOX_VALUE_KIND_NUMBER: {
+        static const double epsilon = 0.00000001;
+        return fabs(left.as.number - right.as.number) <= epsilon;
+    }
+
+    case CLOX_VALUE_KIND_STRING:
+        return str_equals(left.as.string, right.as.string);
+    }
+
+    return false;
 }

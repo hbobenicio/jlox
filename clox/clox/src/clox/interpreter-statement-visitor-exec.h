@@ -1,0 +1,8 @@
+#ifndef CLOX_INTERPRETER_STATEMENT_VISITOR_EXEC_H
+#define CLOX_INTERPRETER_STATEMENT_VISITOR_EXEC_H
+
+struct clox_ast_statement_visitor;
+
+const struct clox_ast_statement_visitor* clox_interpreter_statement_visitor_exec(void);
+
+#endif

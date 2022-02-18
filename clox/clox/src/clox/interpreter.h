@@ -56,4 +56,6 @@ int clox_interpreter_exec_statement(struct clox_interpreter* interpreter, struct
  */
 int clox_interpreter_exec_program(struct clox_interpreter* interpreter, struct clox_ast_program* prog);
 
+void clox_interpreter_set_value(struct clox_interpreter* interpreter, struct clox_value val);
+
 #endif
