@@ -199,10 +199,5 @@ static void eval_visit_expr_var(struct clox_ast_expr* expr, void* userctx) {
         //TODO abort further execution (error handling)
     }
 
-    if (var_value.kind == CLOX_VALUE_KIND_STRING) {
-        clox_interpreter_set_value(interpreter, clox_value_string_str_dup(var_value.as.string));
-    } else {
-        clox_interpreter_set_value(interpreter, var_value);
-    }
-    // interpreter->value = var_value;
+    clox_interpreter_set_value(interpreter, clox_value_dup(var_value));
 }

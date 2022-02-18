@@ -18,6 +18,9 @@ void clox_env_init(struct clox_env* env) {
 }
 
 void clox_env_free(struct clox_env* env) {
+    for (long int i = 0; i < hmlen(env->table); i++) {
+        clox_value_free(&env->table[i].value);
+    }
     hmfree(env->table);
     env->table = NULL;
     env->seed = 0;

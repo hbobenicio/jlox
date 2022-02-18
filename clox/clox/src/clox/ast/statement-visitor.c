@@ -17,7 +17,7 @@ int clox_ast_statement_accept(struct clox_ast_statement* stmt, const struct clox
         return 0;
 
     case CLOX_AST_STATEMENT_KIND_VAR:
-        if (visitor->visit_statement_print) {
+        if (visitor->visit_statement_var) {
             return visitor->visit_statement_var(stmt, userctx);
         }
         return 0;

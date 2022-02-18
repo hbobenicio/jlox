@@ -24,6 +24,13 @@ struct clox_value clox_value_number(double val) {
     };
 }
 
+struct clox_value clox_value_dup(struct clox_value val) {
+    if (val.kind == CLOX_VALUE_KIND_STRING) {
+        return clox_value_string_str_dup(val.as.string);
+    }
+    return val;
+}
+
 struct clox_value clox_value_string_str_dup(struct str val) {
     return (struct clox_value) {
         .kind = CLOX_VALUE_KIND_STRING,
@@ -45,10 +52,10 @@ void clox_value_free(struct clox_value* val) {
     *val = clox_value_nil();
 }
 
-void clox_value_fprintln(FILE* file, struct clox_value value) {
-    switch (value.kind) {
+void clox_value_fprintln(FILE* file, struct clox_value val) {
+    switch (val.kind) {
     case CLOX_VALUE_KIND_BOOL:
-        fprintf(file, "%s\n", (value.as.boolean) ? "true" : "false");
+        fprintf(file, "%s\n", (val.as.boolean) ? "true" : "false");
         break;
 
     case CLOX_VALUE_KIND_NIL:
@@ -56,12 +63,33 @@ void clox_value_fprintln(FILE* file, struct clox_value value) {
         break;
 
     case CLOX_VALUE_KIND_NUMBER:
-        fprintf(file, "%lf\n", value.as.number);
+        fprintf(file, "%lf\n", val.as.number);
         break;
 
     case CLOX_VALUE_KIND_STRING:
         //FIXME this is spefic to the repl mode. this doesn't make sense for scripting mode
-        fprintf(file, "\"%s\"\n", value.as.string.ptr);
+        fprintf(file, "\"%s\"\n", val.as.string.ptr);
+        break;
+    }
+}
+
+void clox_value_fdump(FILE* file, struct clox_value val) {
+    switch (val.kind) {
+    case CLOX_VALUE_KIND_BOOL:
+        fprintf(file, "%s", (val.as.boolean) ? "true" : "false");
+        break;
+
+    case CLOX_VALUE_KIND_NIL:
+        fputs("nil", file);
+        break;
+
+    case CLOX_VALUE_KIND_NUMBER:
+        fprintf(file, "%lf", val.as.number);
+        break;
+
+    case CLOX_VALUE_KIND_STRING:
+        //FIXME this is spefic to the repl mode. this doesn't make sense for scripting mode
+        fprintf(file, "%s", val.as.string.ptr);
         break;
     }
 }
