@@ -3,6 +3,16 @@
 #include <assert.h>
 #include <math.h>
 
+const char* clox_value_kind_to_cstr(enum clox_value_kind kind) {
+    switch (kind) {
+    case CLOX_VALUE_KIND_BOOL:   return "bool";
+    case CLOX_VALUE_KIND_NIL:    return "nil";
+    case CLOX_VALUE_KIND_NUMBER: return "number";
+    case CLOX_VALUE_KIND_STRING: return "string";
+    }
+    return NULL;
+}
+
 struct clox_value clox_value_bool(bool val) {
     return (struct clox_value) {
         .kind = CLOX_VALUE_KIND_BOOL,

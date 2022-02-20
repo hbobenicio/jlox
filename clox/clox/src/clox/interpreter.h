@@ -8,6 +8,12 @@ struct clox_ast_expr;
 struct clox_ast_statement;
 struct clox_ast_program;
 
+/**
+ * @brief The AST Interpreter.
+ * 
+ * It traverses recursively (through visitor implementations) the AST of Clox programs parsed with
+ * clox_parser, executing all statements in order, evaluating expressions and saving its values in the environment state as needed.
+ */
 struct clox_interpreter {
     /**
      * @brief evaluation resulting value
@@ -28,6 +34,11 @@ struct clox_interpreter {
  */
 void clox_interpreter_init(struct clox_interpreter* interpreter);
 
+/**
+ * @brief Cleans up the Interpreter after use.
+ * 
+ * @param interpreter 
+ */
 void clox_interpreter_free(struct clox_interpreter* interpreter);
 
 /**
@@ -56,6 +67,14 @@ int clox_interpreter_exec_statement(struct clox_interpreter* interpreter, struct
  */
 int clox_interpreter_exec_program(struct clox_interpreter* interpreter, struct clox_ast_program* prog);
 
+/**
+ * @brief Sets a new value in the interpreter state.
+ * 
+ * If the previous value is a string, then free's it (because the old value own's the str buffer which were heap allocated).
+ * 
+ * @param interpreter 
+ * @param val The new value to be set
+ */
 void clox_interpreter_set_value(struct clox_interpreter* interpreter, struct clox_value val);
 
 #endif

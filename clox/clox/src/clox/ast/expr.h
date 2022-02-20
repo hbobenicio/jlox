@@ -5,7 +5,6 @@
 #include <clox/token.h>
 #include <clox/str.h>
 #include <clox/strview.h>
-#include "tree-traversal-order.h"
 
 enum clox_ast_expr_literal_kind {
     CLOX_AST_EXPR_LITERAL_KIND_NUMBER,

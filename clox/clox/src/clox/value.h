@@ -22,6 +22,8 @@ struct clox_value {
     } as;
 };
 
+const char* clox_value_kind_to_cstr(enum clox_value_kind kind);
+
 struct clox_value clox_value_bool(bool val);
 struct clox_value clox_value_nil(void);
 struct clox_value clox_value_number(double val);

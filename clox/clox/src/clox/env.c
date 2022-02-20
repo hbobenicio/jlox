@@ -33,9 +33,6 @@ void clox_env_define(struct clox_env* env, struct strview var_name, struct clox_
 int clox_env_get(struct clox_env* env, struct strview var_name, struct clox_value* out_var_value) {
     struct clox_env_kv* entry = hmgetp_null(env->table, hash_strview(env, var_name));
     if (entry == NULL) {
-        fputs("error: env: undefined variable '", stderr);
-        strview_fprint(var_name, stderr);
-        fputs("'\n", stderr);
         *out_var_value = clox_value_nil();
         return 1;
     }
