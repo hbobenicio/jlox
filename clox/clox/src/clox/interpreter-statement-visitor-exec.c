@@ -22,8 +22,11 @@ static int exec_statement_expr(struct clox_ast_statement* stmt, void* userctx) {
     struct clox_interpreter* interpreter = userctx;
     struct clox_ast_statement_expr* expr_stmt = &stmt->as.expr_statement;
 
-    // How to handle errors here?
-    (void) clox_interpreter_eval(interpreter, expr_stmt->expr);
+    struct clox_interpreter_eval_result res = clox_interpreter_eval(interpreter, expr_stmt->expr);
+    if (res.outcome != CLOX_INTERPRETER_EVAL_RESULT_OK) {
+        fputs("error: failed to execute expression statement\n", stderr);
+        return res.as.err_code;
+    }
     
     return 0;
 }
@@ -35,10 +38,10 @@ static int exec_statement_print(struct clox_ast_statement* stmt, void* userctx) 
     // NOTE val is a borrow which is owned by the interpreter
     struct clox_interpreter_eval_result res = clox_interpreter_eval(interpreter, print_stmt->expr);
     if (res.outcome != CLOX_INTERPRETER_EVAL_RESULT_OK) {
-        fputs("error: failed to print expression\n", stderr);
+        fputs("error: failed to execute print statement\n", stderr);
         return res.as.err_code;
     }
-    
+
     // Executing the print action
     clox_value_fprintln(stdout, res.as.value);
 
