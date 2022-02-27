@@ -15,6 +15,8 @@ static bool match(struct parser* p, enum token_kind token_kind);
 static bool check(const struct parser* p, enum token_kind token_kind);
 static int consume(struct parser* p, enum token_kind token_kind, const char* msg);
 
+static void syncronize(struct parser* p);
+
 static struct token advance(struct parser* p);
 static struct token peek(const struct parser* p);
 static struct token previous(const struct parser* p);
@@ -51,11 +53,20 @@ struct clox_ast_program* parser_parse(struct parser* p) {
 }
 
 struct clox_ast_statement* parser_parse_declaration(struct parser* p) {
-    // TODO add error handling and error sincronization
+    struct clox_ast_statement* stmt;
+
     if (match(p, TOKEN_KIND_VAR)) {
-        return parser_parse_var_declaration_statement(p);
+        stmt = parser_parse_var_declaration_statement(p);
+    } else {
+        stmt = parser_parse_statement(p);
     }
-    return parser_parse_statement(p);
+
+    if (stmt == NULL) {
+        syncronize(p);
+        return NULL;
+    }
+
+    return stmt;
 }
 
 
@@ -276,6 +287,32 @@ static int consume(struct parser* p, enum token_kind token_kind, const char* msg
     );
 
     return 1;
+}
+
+static void syncronize(struct parser* p) {
+    advance(p);
+    while (!end_of_input(p)) {
+        if (previous(p).kind == TOKEN_KIND_SEMICOLON) {
+            return;
+        }
+
+        switch (peek(p).kind) {
+        case TOKEN_KIND_CLASS:
+        case TOKEN_KIND_FUN:
+        case TOKEN_KIND_VAR:
+        case TOKEN_KIND_FOR:
+        case TOKEN_KIND_IF:
+        case TOKEN_KIND_WHILE:
+        case TOKEN_KIND_PRINT:
+        case TOKEN_KIND_RETURN:
+            return;
+
+        default:
+            break;
+        }
+
+        advance(p);
+    }
 }
 
 static bool match(struct parser* p, enum token_kind token_kind) {
