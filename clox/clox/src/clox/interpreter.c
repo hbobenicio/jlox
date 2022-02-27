@@ -20,9 +20,13 @@ void clox_interpreter_free(struct clox_interpreter* interpreter) {
     clox_interpreter_set_value(interpreter, clox_value_nil());
 }
 
-struct clox_value clox_interpreter_eval(struct clox_interpreter* interpreter, struct clox_ast_expr* expr) {
-    clox_ast_expr_accept(expr, clox_interpreter_expr_visitor_eval(), interpreter);
-    return interpreter->value;
+struct clox_interpreter_eval_result clox_interpreter_eval(struct clox_interpreter* interpreter, struct clox_ast_expr* expr) {
+    int rc = clox_ast_expr_accept(expr, clox_interpreter_expr_visitor_eval(), interpreter);
+    if (rc != 0) {
+        return clox_interpreter_eval_result_err(rc);
+    }
+    
+    return clox_interpreter_eval_result_ok(interpreter->value);
 }
 
 int clox_interpreter_exec_statement(struct clox_interpreter* interpreter, struct clox_ast_statement* stmt) {

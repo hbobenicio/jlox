@@ -8,6 +8,29 @@ struct clox_ast_expr;
 struct clox_ast_statement;
 struct clox_ast_program;
 
+struct clox_interpreter_eval_result {
+    enum {
+        CLOX_INTERPRETER_EVAL_RESULT_OK,
+        CLOX_INTERPRETER_EVAL_RESULT_ERR,
+    } outcome;
+    union {
+        struct clox_value value;
+        int err_code;
+    } as;
+};
+
+#define clox_interpreter_eval_result_ok(val) \
+    (struct clox_interpreter_eval_result) { \
+        .outcome = CLOX_INTERPRETER_EVAL_RESULT_OK, \
+        .as.value = (val) \
+    }
+
+#define clox_interpreter_eval_result_err(code) \
+    (struct clox_interpreter_eval_result) { \
+        .outcome = CLOX_INTERPRETER_EVAL_RESULT_ERR, \
+        .as.err_code = (code) \
+    }
+
 /**
  * @brief The AST Interpreter.
  * 
@@ -48,7 +71,7 @@ void clox_interpreter_free(struct clox_interpreter* interpreter);
  * @param expr The root expression where evaluation starts
  * @return struct clox_value 
  */
-struct clox_value clox_interpreter_eval(struct clox_interpreter* interpreter, struct clox_ast_expr* expr);
+struct clox_interpreter_eval_result clox_interpreter_eval(struct clox_interpreter* interpreter, struct clox_ast_expr* expr);
 
 /**
  * @brief Executes the given AST statement.

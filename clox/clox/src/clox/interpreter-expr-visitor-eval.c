@@ -27,16 +27,31 @@ const struct clox_ast_expr_visitor* clox_interpreter_expr_visitor_eval(void) {
 static int eval_visit_expr_binary(struct clox_ast_expr* expr, void* userctx) {
     struct clox_interpreter* interpreter = userctx;
     struct clox_ast_expr_binary* expr_bin = &expr->value.binary;
+    int rc = 0;
     
-    //FIXME these could also fail. Improve error handling. Avoid evaluating right hand side?
-    //NOTE this is a borrowed value
-    struct clox_value left = clox_interpreter_eval(interpreter, expr_bin->left);
+    // NOTE this is a borrowed value
+    struct clox_interpreter_eval_result left_result = clox_interpreter_eval(interpreter, expr_bin->left);
+    if (left_result.outcome != CLOX_INTERPRETER_EVAL_RESULT_OK) {
+        fprintf(stderr, "error: line %zu: failed to evaluate left-hand-size of binary operator '", expr_bin->operator.line);
+        strview_fprint(expr_bin->operator.lexeme, stderr);
+        fputs("'\n", stderr);
+        return left_result.as.err_code;
+    }
+    struct clox_value left = left_result.as.value;
     if (left.kind == CLOX_VALUE_KIND_STRING) {
         left.as.string = str_dup(left.as.string);
     }
 
-    //NOTE this is a borrowed value
-    struct clox_value right = clox_interpreter_eval(interpreter, expr_bin->right);
+    // NOTE this is a borrowed value
+    struct clox_interpreter_eval_result right_result = clox_interpreter_eval(interpreter, expr_bin->right);
+    if (right_result.outcome != CLOX_INTERPRETER_EVAL_RESULT_OK) {
+        fprintf(stderr, "error: line %zu: failed to evaluate right-hand-size of binary operator '", expr_bin->operator.line);
+        strview_fprint(expr_bin->operator.lexeme, stderr);
+        fputs("'\n", stderr);
+        rc = right_result.as.err_code;
+        goto err_free_left;
+    }
+    struct clox_value right = right_result.as.value;
     if (right.kind == CLOX_VALUE_KIND_STRING) {
         right.as.string = str_dup(right.as.string);
     }
@@ -57,6 +72,7 @@ static int eval_visit_expr_binary(struct clox_ast_expr* expr, void* userctx) {
         } else {
             fprintf(stderr, "error: line %zu: binary operator plus (a.k.a. '+') is only valid if both operands are numbers or strings. left operand is %s and right operand is %s",
                 expr_bin->operator.line, clox_value_kind_to_cstr(left.kind), clox_value_kind_to_cstr(right.kind));
+            rc = 1;
             goto err_free_right_and_left;
         }
         break;
@@ -65,6 +81,7 @@ static int eval_visit_expr_binary(struct clox_ast_expr* expr, void* userctx) {
         if (left.kind != CLOX_VALUE_KIND_NUMBER || right.kind != CLOX_VALUE_KIND_NUMBER) {
             fprintf(stderr, "error: line %zu: binary operator '' requires both operands to be numbers. got left as %s and right as %s\n",
                 expr_bin->operator.line, clox_value_kind_to_cstr(left.kind), clox_value_kind_to_cstr(right.kind));
+            rc = 1;
             goto err_free_right_and_left;
         }
         clox_interpreter_set_value(interpreter, clox_value_number(left.as.number - right.as.number));
@@ -74,6 +91,7 @@ static int eval_visit_expr_binary(struct clox_ast_expr* expr, void* userctx) {
         if (left.kind != CLOX_VALUE_KIND_NUMBER || right.kind != CLOX_VALUE_KIND_NUMBER) {
             fprintf(stderr, "error: line %zu: binary operator '' requires both operands to be numbers. got left as %s and right as %s\n",
                 expr_bin->operator.line, clox_value_kind_to_cstr(left.kind), clox_value_kind_to_cstr(right.kind));
+            rc = 1;
             goto err_free_right_and_left;
         }
         clox_interpreter_set_value(interpreter, clox_value_number(left.as.number * right.as.number));
@@ -83,6 +101,7 @@ static int eval_visit_expr_binary(struct clox_ast_expr* expr, void* userctx) {
         if (left.kind != CLOX_VALUE_KIND_NUMBER || right.kind != CLOX_VALUE_KIND_NUMBER) {
             fprintf(stderr, "error: line %zu: binary operator '' requires both operands to be numbers. got left as %s and right as %s\n",
                 expr_bin->operator.line, clox_value_kind_to_cstr(left.kind), clox_value_kind_to_cstr(right.kind));
+            rc = 1;
             goto err_free_right_and_left;
         }
         clox_interpreter_set_value(interpreter, clox_value_number(left.as.number / right.as.number));
@@ -92,6 +111,7 @@ static int eval_visit_expr_binary(struct clox_ast_expr* expr, void* userctx) {
         if (left.kind != CLOX_VALUE_KIND_NUMBER || right.kind != CLOX_VALUE_KIND_NUMBER) {
             fprintf(stderr, "error: line %zu: binary operator '' requires both operands to be numbers. got left as %s and right as %s\n",
                 expr_bin->operator.line, clox_value_kind_to_cstr(left.kind), clox_value_kind_to_cstr(right.kind));
+            rc = 1;
             goto err_free_right_and_left;
         }
         clox_interpreter_set_value(interpreter, clox_value_bool(left.as.number > right.as.number));
@@ -101,6 +121,7 @@ static int eval_visit_expr_binary(struct clox_ast_expr* expr, void* userctx) {
         if (left.kind != CLOX_VALUE_KIND_NUMBER || right.kind != CLOX_VALUE_KIND_NUMBER) {
             fprintf(stderr, "error: line %zu: binary operator '' requires both operands to be numbers. got left as %s and right as %s\n",
                 expr_bin->operator.line, clox_value_kind_to_cstr(left.kind), clox_value_kind_to_cstr(right.kind));
+            rc = 1;
             goto err_free_right_and_left;
         }
         clox_interpreter_set_value(interpreter, clox_value_bool(left.as.number >= right.as.number));
@@ -110,6 +131,7 @@ static int eval_visit_expr_binary(struct clox_ast_expr* expr, void* userctx) {
         if (left.kind != CLOX_VALUE_KIND_NUMBER || right.kind != CLOX_VALUE_KIND_NUMBER) {
             fprintf(stderr, "error: line %zu: binary operator '' requires both operands to be numbers. got left as %s and right as %s\n",
                 expr_bin->operator.line, clox_value_kind_to_cstr(left.kind), clox_value_kind_to_cstr(right.kind));
+            rc = 1;
             goto err_free_right_and_left;
         }
         clox_interpreter_set_value(interpreter, clox_value_bool(left.as.number < right.as.number));
@@ -119,6 +141,7 @@ static int eval_visit_expr_binary(struct clox_ast_expr* expr, void* userctx) {
         if (left.kind != CLOX_VALUE_KIND_NUMBER || right.kind != CLOX_VALUE_KIND_NUMBER) {
             fprintf(stderr, "error: line %zu: binary operator '' requires both operands to be numbers. got left as %s and right as %s\n",
                 expr_bin->operator.line, clox_value_kind_to_cstr(left.kind), clox_value_kind_to_cstr(right.kind));
+            rc = 1;
             goto err_free_right_and_left;
         }
         clox_interpreter_set_value(interpreter, clox_value_bool(left.as.number <= right.as.number));
@@ -136,6 +159,7 @@ static int eval_visit_expr_binary(struct clox_ast_expr* expr, void* userctx) {
         fprintf(stderr, "error: line %zu: unknown binary operator: ", expr_bin->operator.line);
         token_fprint(stderr, &expr_bin->operator);
         fputs("\n", stderr);
+        rc = 1;
         goto err_free_right_and_left;
     }
 
@@ -145,16 +169,22 @@ static int eval_visit_expr_binary(struct clox_ast_expr* expr, void* userctx) {
 
 err_free_right_and_left:
     clox_value_free(&right);
+err_free_left:
     clox_value_free(&left);
     interpreter->value = clox_value_nil();
-    return 1;
+    return rc;
 }
 
 static int eval_visit_expr_grouping(struct clox_ast_expr* expr, void* userctx) {
     struct clox_interpreter* interpreter = userctx;
 
-    struct clox_value val = clox_interpreter_eval(interpreter, expr->value.grouping.expr);
-    clox_interpreter_set_value(interpreter, val);
+    // struct clox_value val = clox_interpreter_eval(interpreter, expr->value.grouping.expr);
+    struct clox_interpreter_eval_result res = clox_interpreter_eval(interpreter, expr->value.grouping.expr);
+    if (res.outcome != CLOX_INTERPRETER_EVAL_RESULT_OK) {
+        return res.as.err_code;
+    }
+    
+    clox_interpreter_set_value(interpreter, res.as.value);
 
     return 0;
 }
@@ -190,7 +220,15 @@ static int eval_visit_expr_unary(struct clox_ast_expr* expr, void* userctx) {
     struct clox_ast_expr_unary* expr_un = &expr->value.unary;
 
     // NOTE this value is borrowed. If we need further recursive evaluation with the interpreter we need to dup this.
-    struct clox_value right = clox_interpreter_eval(interpreter, expr_un->right);
+    // struct clox_value right = clox_interpreter_eval(interpreter, expr_un->right);
+    struct clox_interpreter_eval_result right_result = clox_interpreter_eval(interpreter, expr_un->right);
+    if (right_result.outcome != CLOX_INTERPRETER_EVAL_RESULT_OK) {
+        fprintf(stderr, "error: line %zu: failed to evaluate right-hand-size of unary operator '", expr_un->operator.line);
+        strview_fprint(expr_un->operator.lexeme, stderr);
+        fputs("'\n", stderr);
+        return right_result.as.err_code;
+    }
+    struct clox_value right = right_result.as.value;
 
     switch (expr_un->operator.kind) {
     case TOKEN_KIND_BANG:
