@@ -70,7 +70,7 @@ static int eval_visit_expr_binary(struct clox_ast_expr* expr, void* userctx) {
 
             clox_interpreter_set_value(interpreter, val);
         } else {
-            fprintf(stderr, "error: line %zu: binary operator plus (a.k.a. '+') is only valid if both operands are numbers or strings. left operand is %s and right operand is %s",
+            fprintf(stderr, "error: line %zu: binary operator '+' is only valid if both operands are numbers or strings. left operand is %s and right operand is %s\n",
                 expr_bin->operator.line, clox_value_kind_to_cstr(left.kind), clox_value_kind_to_cstr(right.kind));
             rc = 1;
             goto err_free_right_and_left;

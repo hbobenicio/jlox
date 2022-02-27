@@ -231,7 +231,7 @@ struct clox_ast_statement* parser_parse_statement(struct parser* p) {
 struct clox_ast_statement* parser_parse_print_statement(struct parser* p) {
     struct clox_ast_expr* expr = parser_parse_expr(p);
     if (expr == NULL) {
-        fprintf(stderr, "error: failed to parse expression from print statement\n");
+        fprintf(stderr, "error: failed to parse print statement expression\n");
         return NULL;
     }
     consume(p, TOKEN_KIND_SEMICOLON, "error: expecting ';' after print expression operand");
