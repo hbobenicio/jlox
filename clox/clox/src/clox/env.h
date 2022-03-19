@@ -30,5 +30,6 @@ void clox_env_init(struct clox_env* env);
 void clox_env_free(struct clox_env* env);
 void clox_env_define(struct clox_env* env, struct strview var_name, struct clox_value var_value);
 int clox_env_get(struct clox_env* env, struct strview var_name, struct clox_value* out_var_value);
+int clox_env_assign(struct clox_env* env, struct strview var_name, struct clox_value var_value);
 
 #endif

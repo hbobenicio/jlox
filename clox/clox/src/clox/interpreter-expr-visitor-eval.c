@@ -12,6 +12,7 @@ static int eval_visit_expr_grouping(struct clox_ast_expr* expr, void* userctx);
 static int eval_visit_expr_literal(struct clox_ast_expr* expr, void* userctx);
 static int eval_visit_expr_unary(struct clox_ast_expr* expr, void* userctx);
 static int eval_visit_expr_var(struct clox_ast_expr* expr, void* userctx);
+static int eval_visit_expr_assign(struct clox_ast_expr* expr, void* userctx);
 
 const struct clox_ast_expr_visitor* clox_interpreter_expr_visitor_eval(void) {
     static const struct clox_ast_expr_visitor vtable = {
@@ -20,6 +21,7 @@ const struct clox_ast_expr_visitor* clox_interpreter_expr_visitor_eval(void) {
         .visit_literal = eval_visit_expr_literal,
         .visit_unary = eval_visit_expr_unary,
         .visit_var = eval_visit_expr_var,
+        .visit_assign = eval_visit_expr_assign,
     };
     return &vtable;
 }
@@ -269,6 +271,39 @@ static int eval_visit_expr_var(struct clox_ast_expr* expr, void* userctx) {
     }
 
     clox_interpreter_set_value(interpreter, clox_value_dup(var_value));
+
+    return 0;
+}
+
+static int eval_visit_expr_assign(struct clox_ast_expr* expr, void* userctx) {
+    struct clox_interpreter* interpreter = userctx;
+    struct clox_ast_expr_assign* expr_assign = &expr->value.assign;
+
+    //FIXME "Right now, the only valid target is a simple variable expression"
+    // This should be ok: newPoint(x + 2, 0).y = 3;
+    // and this should not: a + b = c;
+
+    // Evaluate the assignment value
+    struct clox_interpreter_eval_result value_res = clox_interpreter_eval(interpreter, expr_assign->value);
+    if (value_res.outcome != CLOX_INTERPRETER_EVAL_RESULT_OK) {
+        fprintf(stderr, "error: line %zu: failed to evaluate assignment expression\n", expr_assign->name.line);
+        return value_res.as.err_code;
+    }
+    struct clox_value var_value = clox_value_dup(value_res.as.value);
+
+    // Get assignment target variable name from the environment
+    struct strview var_name = expr_assign->name.lexeme;
+
+    if (clox_env_assign(&interpreter->env, var_name, var_value) != 0) {
+        fputs("error: runtime error: undefined variable '", stderr);
+        strview_fprint(var_name, stderr);
+        fputs("'\n", stderr);
+        clox_value_free(&var_value);
+        return 1;
+    }
+
+    //TODO parei aqui. implementar parser e testar se esse método está gerenciando memoria corretamente
+    clox_interpreter_set_value(interpreter, var_value);
 
     return 0;
 }

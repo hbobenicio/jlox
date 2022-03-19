@@ -71,7 +71,34 @@ struct clox_ast_statement* parser_parse_declaration(struct parser* p) {
 
 
 struct clox_ast_expr* parser_parse_expr(struct parser* p) {
-    return parser_parse_expr_equality(p);
+    return parser_parse_expr_assignment(p);
+}
+
+struct clox_ast_expr* parser_parse_expr_assignment(struct parser* p) {
+    struct clox_ast_expr* expr = parser_parse_expr_equality(p);
+    if (expr == NULL) {
+        return NULL;
+    }
+
+    if (match(p, TOKEN_KIND_EQUAL)) {
+        struct token equals_op = previous(p);
+
+        struct clox_ast_expr* rvalue = parser_parse_expr_assignment(p);
+        if (expr == NULL) {
+            fprintf(stderr, "error: line: %zu: invalid r-value expression for assignment\n", equals_op.line);
+            return NULL;
+        }
+
+        // Check if expr is a valid l-value
+        if (expr->kind == CLOX_AST_EXPR_KIND_VAR) {
+            return clox_ast_expr_assign_new(expr->value.var.name, rvalue);
+        }
+
+        fprintf(stderr, "error: line: %zu: invalid l-value expression for assignment\n", equals_op.line);
+        return NULL;
+    }
+    
+    return expr;
 }
 
 // equality -> comparison ( ("!=" | "==") comparison )* ;

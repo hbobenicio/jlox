@@ -37,6 +37,12 @@ int clox_ast_expr_accept(struct clox_ast_expr* expr, const struct clox_ast_expr_
             return visitor->visit_var(expr, userctx);
         }
         return 0;
+
+    case CLOX_AST_EXPR_KIND_ASSIGN:
+        if (visitor->visit_assign) {
+            return visitor->visit_assign(expr, userctx);
+        }
+        return 0;
     }
 
     assert(false && "unsupported clox_ast_expr_kind");

@@ -20,6 +20,7 @@ struct clox_ast_statement* parser_parse_declaration(struct parser* p);
 
 // Expressions
 struct clox_ast_expr* parser_parse_expr(struct parser* p);
+struct clox_ast_expr* parser_parse_expr_assignment(struct parser* p);
 struct clox_ast_expr* parser_parse_expr_equality(struct parser* p);
 struct clox_ast_expr* parser_parse_expr_comparison(struct parser* p);
 struct clox_ast_expr* parser_parse_expr_term(struct parser* p);

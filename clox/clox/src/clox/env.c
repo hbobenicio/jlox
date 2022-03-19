@@ -40,3 +40,13 @@ int clox_env_get(struct clox_env* env, struct strview var_name, struct clox_valu
     *out_var_value = entry->value;
     return 0;
 }
+
+int clox_env_assign(struct clox_env* env, struct strview var_name, struct clox_value var_value) {
+    struct clox_env_kv* entry = hmgetp_null(env->table, hash_strview(env, var_name));
+    if (entry == NULL) {
+        return 1;
+    }
+
+    clox_env_define(env, var_name, var_value);
+    return 0;
+}

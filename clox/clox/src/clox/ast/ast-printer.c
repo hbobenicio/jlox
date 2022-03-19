@@ -16,6 +16,7 @@ static int print_grouping(struct clox_ast_expr* expr, void* userctx);
 static int print_literal(struct clox_ast_expr* expr, void* userctx);
 static int print_unary(struct clox_ast_expr* expr, void* userctx);
 static int print_var(struct clox_ast_expr* expr, void* userctx);
+static int print_assign(struct clox_ast_expr* expr, void* userctx);
 
 static const struct clox_ast_expr_visitor ast_printer_expr_visitor = {
     .visit_binary = print_binary,
@@ -23,6 +24,7 @@ static const struct clox_ast_expr_visitor ast_printer_expr_visitor = {
     .visit_literal = print_literal,
     .visit_unary = print_unary,
     .visit_var = print_var,
+    .visit_assign = print_assign,
 };
 
 void ast_printer_println(struct clox_ast_expr* expr) {
@@ -118,6 +120,26 @@ static int print_var(struct clox_ast_expr* expr, void* userctx) {
 
     struct strview var_name = expr_var->name.lexeme;
     strview_fprint(var_name, ast_printer->file);
+
+    return 0;
+}
+
+static int print_assign(struct clox_ast_expr* expr, void* userctx) {
+    struct ast_printer* ast_printer = userctx;
+    struct clox_ast_expr_assign* expr_assign = &expr->value.assign;
+
+    fprintf(ast_printer->file, "(= ");
+
+    struct strview var_name = expr_assign->name.lexeme;
+    strview_fprint(var_name, ast_printer->file);
+
+    fputc(' ', ast_printer->file);
+
+    if (clox_ast_expr_accept(expr_assign->value, &ast_printer_expr_visitor, userctx) != 0) {
+        return 1;
+    }
+
+    fputc(')', ast_printer->file);
 
     return 0;
 }

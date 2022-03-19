@@ -15,13 +15,15 @@ static int rpn_print_grouping(struct clox_ast_expr* expr, void* userctx);
 static int rpn_print_literal(struct clox_ast_expr* expr, void* userctx);
 static int rpn_print_unary(struct clox_ast_expr* expr, void* userctx);
 static int rpn_print_var(struct clox_ast_expr* expr, void* userctx);
+static int rpn_print_assign(struct clox_ast_expr* expr, void* userctx);
 
 static const struct clox_ast_expr_visitor ast_rpn_printer_expr_visitor = {
     .visit_binary = rpn_print_binary,
     .visit_grouping = rpn_print_grouping,
     .visit_literal = rpn_print_literal,
     .visit_unary = rpn_print_unary,
-    .visit_var = rpn_print_var
+    .visit_var = rpn_print_var,
+    .visit_assign = rpn_print_assign,
 };
 
 void ast_rpn_printer_println(struct clox_ast_expr* expr) {
@@ -110,6 +112,22 @@ static int rpn_print_var(struct clox_ast_expr* expr, void* userctx) {
 
     struct strview var_name = expr_var->name.lexeme;
     strview_fprint(var_name, ast_rpn_printer->file);
+
+    return 0;
+}
+
+static int rpn_print_assign(struct clox_ast_expr* expr, void* userctx) {
+    struct ast_rpn_printer* ast_rpn_printer = userctx;
+    struct clox_ast_expr_assign* expr_assign = &expr->value.assign;
+
+    if (clox_ast_expr_accept(expr_assign->value, &ast_rpn_printer_expr_visitor, userctx) != 0) {
+        return 1;
+    }
+
+    struct strview var_name = expr_assign->name.lexeme;
+    strview_fprint(var_name, ast_rpn_printer->file);
+
+    fprintf(ast_rpn_printer->file, " =");
 
     return 0;
 }
