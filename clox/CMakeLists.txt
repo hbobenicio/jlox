@@ -58,9 +58,9 @@ target_include_directories(clox
     PUBLIC  "${PROJECT_SOURCE_DIR}/clox/include"
 )
 
-##########################
-# main (repl) executable #
-##########################
+#######################
+# clox cli executable #
+#######################
 
 add_executable(clox-cli "${PROJECT_SOURCE_DIR}/clox-cli/main.c")
 set_target_properties(clox-cli PROPERTIES
@@ -74,6 +74,27 @@ target_include_directories(clox-cli
         "${PROJECT_SOURCE_DIR}/clox/src"
 )
 target_link_libraries(clox-cli clox)
+
+######################
+# clox vm executable #
+######################
+
+add_executable(clox-vm
+    "${PROJECT_SOURCE_DIR}/clox-vm/src/clox/vm/mem.c"
+    "${PROJECT_SOURCE_DIR}/clox-vm/src/clox/vm/chunk.c"
+    "${PROJECT_SOURCE_DIR}/clox-vm/src/clox/vm/dbg.c"
+    "${PROJECT_SOURCE_DIR}/clox-vm/src/clox/vm/main.c"
+)
+set_target_properties(clox-vm PROPERTIES
+    C_STANDARD 17
+    OUTPUT_NAME "clox-vm"
+)
+target_include_directories(clox-vm
+    PRIVATE
+        clox::INTERFACE_INCLUDE_DIRECTORIES
+        "${PROJECT_SOURCE_DIR}/clox/src"
+)
+target_link_libraries(clox-vm clox)
 
 #########
 # Tests #
