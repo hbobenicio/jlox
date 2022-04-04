@@ -4,10 +4,12 @@
 void clox_vm_chunk_init(struct clox_vm_chunk* chunk) {
     chunk->codes = NULL;
     chunk->codes_capacity = chunk->codes_count = 0;
+    clox_vm_value_array_init(&chunk->constants);
 }
 
 void clox_vm_chunk_free(struct clox_vm_chunk* chunk) {
     CLOX_VM_MEM_FREE_ARRAY(uint8_t, chunk->codes, chunk->codes_capacity);
+    clox_vm_value_array_free(&chunk->constants);
     clox_vm_chunk_init(chunk);
 }
 
@@ -19,4 +21,9 @@ void clox_vm_chunk_write(struct clox_vm_chunk* chunk, uint8_t byte) {
     }
     chunk->codes[chunk->codes_count] = byte;
     chunk->codes_count++;
+}
+
+int clox_vm_chunk_add_constant(struct clox_vm_chunk* chunk, clox_vm_value value) {
+    clox_vm_value_array_write(&chunk->constants, value);
+    return chunk->constants.count - 1;
 }

@@ -83,6 +83,7 @@ add_executable(clox-vm
     "${PROJECT_SOURCE_DIR}/clox-vm/src/clox/vm/mem.c"
     "${PROJECT_SOURCE_DIR}/clox-vm/src/clox/vm/chunk.c"
     "${PROJECT_SOURCE_DIR}/clox-vm/src/clox/vm/dbg.c"
+    "${PROJECT_SOURCE_DIR}/clox-vm/src/clox/vm/value.c"
     "${PROJECT_SOURCE_DIR}/clox-vm/src/clox/vm/main.c"
 )
 set_target_properties(clox-vm PROPERTIES
