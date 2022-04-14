@@ -26,11 +26,20 @@ struct clox_vm_chunk {
      * @brief Dynamic array of constant values
      */
     struct clox_vm_value_array constants;
+    /**
+     * @brief Dynamic array of source code line numbers.
+     * 
+     * The index in this array is aligned with the index in the codes array.
+     * This is way we don't need another capacity/count variables.
+     * 
+     * In order to get the op code source code line, use its index here.
+     */
+    size_t* lines;
 };
 
 void clox_vm_chunk_init(struct clox_vm_chunk* chunk);
 void clox_vm_chunk_free(struct clox_vm_chunk* chunk);
-void clox_vm_chunk_write(struct clox_vm_chunk* chunk, uint8_t byte);
+void clox_vm_chunk_write(struct clox_vm_chunk* chunk, uint8_t byte, size_t line);
 
 /**
  * @return the index where the constant was appended 
