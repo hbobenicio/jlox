@@ -51,7 +51,7 @@ add_library(clox
 
 # The value 17 from this property required cmake 3.21 version
 # PUBLIC_HEADER "${PROJECT_SOURCE_DIR}/natc-commons/include/natc/commons/strview.h"
-set_target_properties(clox PROPERTIES C_STANDARD 17)
+# set_target_properties(clox PROPERTIES C_STANDARD 17)
 
 target_include_directories(clox
     PRIVATE "${PROJECT_SOURCE_DIR}/clox/src"

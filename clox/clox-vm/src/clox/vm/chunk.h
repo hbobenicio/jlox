@@ -6,6 +6,7 @@
 
 enum clox_vm_op_code {
     CLOX_VM_OP_CODE_RETURN,
+    CLOX_VM_OP_CODE_CONSTANT,
 };
 
 struct clox_vm_chunk {
@@ -34,6 +35,6 @@ void clox_vm_chunk_write(struct clox_vm_chunk* chunk, uint8_t byte);
 /**
  * @return the index where the constant was appended 
  */
-int clox_vm_chunk_add_constant(struct clox_vm_chunk* chunk, clox_vm_value value);
+size_t clox_vm_chunk_add_constant(struct clox_vm_chunk* chunk, clox_vm_value value);
 
 #endif

@@ -23,7 +23,7 @@ void clox_vm_chunk_write(struct clox_vm_chunk* chunk, uint8_t byte) {
     chunk->codes_count++;
 }
 
-int clox_vm_chunk_add_constant(struct clox_vm_chunk* chunk, clox_vm_value value) {
+size_t clox_vm_chunk_add_constant(struct clox_vm_chunk* chunk, clox_vm_value value) {
     clox_vm_value_array_write(&chunk->constants, value);
     return chunk->constants.count - 1;
 }

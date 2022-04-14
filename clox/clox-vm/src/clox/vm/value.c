@@ -20,3 +20,7 @@ void clox_vm_value_array_free(struct clox_vm_value_array* va) {
     CLOX_VM_MEM_FREE_ARRAY(clox_vm_value, va->values, va->capacity);
     clox_vm_value_array_init(va);
 }
+
+void clox_vm_value_print(clox_vm_value value) {
+    printf("%g", value);
+}

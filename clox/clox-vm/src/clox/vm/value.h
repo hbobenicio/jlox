@@ -14,5 +14,6 @@ struct clox_vm_value_array {
 void clox_vm_value_array_init(struct clox_vm_value_array* va);
 void clox_vm_value_array_write(struct clox_vm_value_array* va, clox_vm_value value);
 void clox_vm_value_array_free(struct clox_vm_value_array* va);
+void clox_vm_value_print(clox_vm_value value);
 
 #endif
